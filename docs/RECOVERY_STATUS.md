@@ -1,31 +1,28 @@
-# Recovery facts and boundaries
+# Exelix recovery facts and boundaries
 
-## Verified observations
-- The supplied APK is package `com.depu.vocabapp`.
-- APK inventory includes three DEX files, image resources, fonts, and XML.
-- Recovered class names and resource strings indicate Kotlin/Jetpack Compose and Room-based vocabulary features.
-- The original source code has not been recovered.
-- This repository's browser app is a new reconstruction, not the original app.
+## Original APK evidence
+- Package name: `com.depu.vocabapp`.
+- APK SHA-256: `58356d0eb5655dd52fa50cf1723487923e7fd6ada69f8a7709041c7df5899dec`.
+- Three DEX files; app-owned class and method inventories recovered from identifier tables.
+- Architecture evidence indicates Kotlin/Jetpack Compose and Room.
+- Reconstructed SQL evidence includes `vocabulary` and `import_batches` tables, their columns, and indexes.
+- Class/method names include `VocabWord`, `VocabDao`, `VocabDatabase`, `VocabRepository`, `BackupManager`, `MarkdownImporter`, `MarkdownExporter`, `XlsxImporter`, `XlsxExporter`, `FeedClient`, `FeedSyncer`, and review/feed workers.
+- Original source code and original review algorithm are not recovered. DEX identifiers and SQL strings are evidence, not decompiled method bodies.
 
-## Reconstruction limits
-- Review intervals are simplified and approximate.
-- Android build has not been verified in this workspace.
-- APK image assets have not been reliably mapped to original screens.
-- Online feeds, notifications, and Excel-specific integrations remain unimplemented.
+## Android reconstruction (primary focus)
+- Native Gradle/Kotlin/Compose/Room project added under repository root and `app/`.
+- Reconstructed Room entities align with APK schema evidence, including vocabulary metadata and import batches.
+- App ID is `com.depu.vocabapp.rebuild`, while namespace remains `com.depu.vocabapp`, to allow side-by-side installation and avoid replacing the original app.
+- Current native screens: Home overview; searchable vocabulary library; add word with metadata and normalized duplicate check; delete word; review queue with Again/Remembered; Backup tab placeholder.
+- Spaced review schedule is an approximation: Again schedules 10 minutes; remembered intervals are 1, 3, 7, 14, 30 days. Unit tests have been added for this scheduler.
+- CI build attempts exposed and corrected a missing Lifecycle Compose artifact and Java/Kotlin JVM-target mismatch. A subsequent Android debug build is pending/running; no APK artifact has been verified yet.
+- APK is not tested on a physical device or emulator. Backup/restore, imports, exports, history, feed, reminders, Excel support, and original UI fidelity are not yet implemented.
 
-## Handling rule
-Keep claims evidence-based. Mark features as reconstructed or untested until validated.
+## Browser reconstruction (paused)
+- Browser app remains in `index.html`, with basic vocabulary CRUD/review/import/export reconstructed.
+- User requested prioritizing Android APK and pausing browser work. Pages/validation workflows now filter web-only changes and are not intended to run for Android-only changes.
 
-## Android reconstruction status (2026-11-27)
-- Android-native project scaffold committed: Kotlin, Jetpack Compose, Room, original package name `com.depu.vocabapp`.
-- Initial native screens: Home overview, Vocabulary Library with search/add/remove, Review queue with again/remembered actions, and a Backup placeholder.
-- Automated Android debug build workflow added. CI build is in progress; APK is not yet verified or available.
-- Browser/PWA development is paused by user request.
-
-## Browser reconstruction status (paused, 2026-11-27)
-- Browser-first vocabulary app is in `index.html`; local persistence, import/backup, and basic review logic are reconstructed.
-- Responsive UI styling has been refined toward a clean editorial study-workspace look with a restrained Bangladesh-inspired green/red accent.
-- Recent functional improvements: due-now review filter; search across part of speech, synonyms, antonyms, collocations, source, and tags; expanded card/flashcard detail display; CSV/TSV/Markdown parsing with quoted delimiters; header-based import mapping for metadata; normalized duplicate checks for legacy backup records.
-- Repository readback confirms the updated HTML and PWA files are committed.
-- GitHub Actions runners are now available again. The latest validation workflow completed successfully, including inline JavaScript syntax checks and import-parser smoke tests for quoted CSV, TSV, Markdown tables, and plain-text separators (run #25, commit `480a584`). The Pages workflow's static build and artifact upload succeeded, but the deploy job failed; Pages hosting is therefore not yet verified. The exact deploy error is not accessible through the current connector.
-- Live hosting, browser rendering, installability, and offline behavior have not been tested; do not treat them as verified.
+## Safety/data handling
+- Never uninstall or overwrite the original APK as part of reconstruction testing.
+- Do not access original private app data. The reconstruction has its own database and app identity.
+- Mark features reconstructed or untested until a real build and runtime test confirms them.
