@@ -63,6 +63,7 @@ object DelimitedVocabularyImporter {
                     afterQuote = true
                 }
                 !quoted && c == '"' && cell.isEmpty() && !afterQuote -> quoted = true
+                !quoted && c == '"' && !cell.isEmpty() -> throw IllegalArgumentException("A quote must begin a quoted field.")
                 !quoted && c == delimiter -> {
                     row.add(cell.toString())
                     cell.clear()
