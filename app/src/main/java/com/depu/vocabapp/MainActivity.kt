@@ -221,6 +221,10 @@ fun ExelixApp(dao: VocabDao) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Preview of the first rows. Existing vocabulary will be skipped.")
+                val existingWordKeys = words.map { it.normalizedWord }.toSet()
+                val alreadyInLibrary = pendingImport.count { it.normalizedWord in existingWordKeys }
+                val repeatedInFile = pendingImport.groupBy { it.normalizedWord }.values.sumOf { group -> (group.size - 1).coerceAtLeast(0) }
+                Text("Already in library: $alreadyInLibrary • Repeated in file: $repeatedInFile", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
                 pendingImport.take(5).forEach { item ->
                     Column {
                         Text(item.word, style = MaterialTheme.typography.titleMedium)
