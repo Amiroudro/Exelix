@@ -13,11 +13,11 @@
 - Native Gradle/Kotlin/Compose/Room project added under repository root and `app/`.
 - Reconstructed Room entities align with APK schema evidence, including vocabulary metadata and import batches.
 - App ID is `com.depu.vocabapp.rebuild`, while namespace remains `com.depu.vocabapp`, to allow side-by-side installation and avoid replacing the original app.
-- Current native screens: Home overview; searchable vocabulary library; add word with metadata and normalized duplicate check; delete word; review queue with Again/Remembered; Backup tab placeholder.
+- Current native screens: Home overview; searchable vocabulary library; add word with metadata and normalized duplicate check; delete word; review queue with Again/Remembered; JSON backup export and merge restore; duplicates are skipped and fields/study state are preserved.
 - Spaced review schedule is an approximation: Again schedules 10 minutes; remembered intervals are 1, 3, 7, 14, 30 days. Unit tests have been added for this scheduler.
 - CI exposed and corrected a missing Lifecycle Compose artifact and Java/Kotlin JVM-target mismatch. Android debug build run #16 completed successfully for commit `33715721`; the APK artifact was downloaded, extracted, and ZIP integrity verified. Physical/emulator installation and runtime remain untested.
-- Review scheduler unit tests are present and CI has been updated to execute them; the test-enabled build is pending.
-- APK is not tested on a physical device or emulator. Backup/restore, imports, exports, history, feed, reminders, Excel support, and original UI fidelity are not yet implemented.
+- Review scheduler unit tests ran and passed in CI run #17.
+- APK is not tested on a physical device or emulator. Text/Markdown import, history, feed, reminders, Excel support, and original UI fidelity are not yet implemented. JSON backup/restore code is added, but its build/runtime verification is pending.
 
 ## Browser reconstruction (paused)
 - Browser app remains in `index.html`, with basic vocabulary CRUD/review/import/export reconstructed.
