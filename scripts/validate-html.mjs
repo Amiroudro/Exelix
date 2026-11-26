@@ -15,7 +15,10 @@ const checks = [
   ['Due-now review filter', /value="due">Due now/],
   ['Metadata-aware search', /w\.synonyms,w\.antonyms,w\.collocations,w\.source,w\.pos/],
   ['Expanded vocabulary card fields', /Antonyms: '\+esc\(w\.antonyms\)/],
-  ['Quoted-delimiter import parser', /function parseDelimitedRow\\(/],\n  ['Header-mapped metadata import', /collocations:get\\(\\['collocations','collocation'\\]\\)/],\n  ['Legacy backup duplicate normalization', /w\\.normalized\\|\\|norm\\(w\\.word\\)/],\n  ['No remote script dependencies', !/<script[^>]+src=["']https?:/i.test(html)],
+  ['Quoted-delimiter import parser', /function parseDelimitedRow\(/],
+  ['Header-mapped metadata import', /collocations:get\(\['collocations','collocation'\]\)/],
+  ['Legacy backup duplicate normalization', /w\.normalized\|\|norm\(w\.word\)/],
+  ['No remote script dependencies', !/<script[^>]+src=["']https?:/i.test(html)],
 ];
 let failed = false;
 for (const [name, test] of checks) {
