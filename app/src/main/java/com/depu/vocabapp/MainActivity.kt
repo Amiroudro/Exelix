@@ -41,9 +41,9 @@ fun ExelixApp(dao: VocabDao) {
                 val data = BackupFormat.encode(snapshot)
                 val stream = context.contentResolver.openOutputStream(uri) ?: throw IllegalStateException("Could not create backup file")
                 stream.use { it.write(data.toByteArray(Charsets.UTF_8)) }
-                backupFeedback = "Backup saved (\${snapshot.size} words)."
+                backupFeedback = "Backup saved (${snapshot.size} words)."
             } catch (error: Exception) {
-                backupFeedback = "Backup failed: \${error.message ?: "unknown error"}"
+                backupFeedback = "Backup failed: ${error.message ?: "unknown error"}"
             }
         }
     }
@@ -60,9 +60,9 @@ fun ExelixApp(dao: VocabDao) {
                     val result = dao.insertIgnore(item.copy(importBatchId = batchId))
                     if (result == -1L) duplicates++ else added++
                 }
-                backupFeedback = "Restore finished: \${added} added, \${duplicates} duplicates skipped."
+                backupFeedback = "Restore finished: ${added} added, ${duplicates} duplicates skipped."
             } catch (error: Exception) {
-                backupFeedback = "Restore failed: \${error.message ?: "invalid backup"}"
+                backupFeedback = "Restore failed: ${error.message ?: "invalid backup"}"
             }
         }
     }
