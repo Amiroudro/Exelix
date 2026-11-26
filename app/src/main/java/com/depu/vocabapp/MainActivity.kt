@@ -3,6 +3,8 @@ package com.depu.vocabapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,10 +13,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.room.Room
 import com.depu.vocabapp.data.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +32,39 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ExelixApp(dao: VocabDao) {
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var backupFeedback by remember { mutableStateOf("") }
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) scope.launch {
+            try {
+                val snapshot = dao.observeAll().first()
+                val data = BackupFormat.encode(snapshot)
+                context.contentResolver.openOutputStream(uri)?.use { it.write(data.toByteArray(Charsets.UTF_8)) }
+                backupFeedback = "Backup saved (\${snapshot.size} words)."
+            } catch (error: Exception) {
+                backupFeedback = "Backup failed: \${error.message ?: "unknown error"}"
+            }
+        }
+    }
+    val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            try {
+                val raw = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                    ?: throw IllegalStateException("Could not read selected file")
+                val restored = BackupFormat.decode(raw)
+                val batchId = dao.insertBatch(ImportBatch(fileName = "JSON backup", wordCount = restored.size))
+                var added = 0
+                var duplicates = 0
+                restored.forEach { item ->
+                    val result = dao.insertIgnore(item.copy(importBatchId = batchId))
+                    if (result == -1L) duplicates++ else added++
+                }
+                backupFeedback = "Restore finished: \${added} added, \${duplicates} duplicates skipped."
+            } catch (error: Exception) {
+                backupFeedback = "Restore failed: \${error.message ?: "invalid backup"}"
+            }
+        }
+    }
     val words by dao.observeAll().collectAsState(initial = emptyList())
     val wordCount by dao.observeCount().collectAsState(initial = 0)
     val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
@@ -135,7 +172,10 @@ fun ExelixApp(dao: VocabDao) {
                     }
                     else -> {
                         Text("Backup & transfer", style = MaterialTheme.typography.headlineSmall)
-                        Text("Backup and restore are next in the Android reconstruction. Your vocabulary is currently saved locally.")
+                        Text("Save a JSON backup or merge a backup into this device. Existing words are kept; duplicates are skipped.")
+                        Button(onClick = { exportLauncher.launch("Exelix-backup.json") }, modifier = Modifier.fillMaxWidth()) { Text("Export JSON backup") }
+                        OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge backup") }
+                        if (backupFeedback.isNotBlank()) Text(backupFeedback, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
