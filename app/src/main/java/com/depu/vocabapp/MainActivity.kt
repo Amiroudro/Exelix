@@ -10,73 +10,90 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.room.Room
-import com.depu.vocabapp.data.ExelixDatabase
-import com.depu.vocabapp.data.WordEntity
-import com.depu.vocabapp.data.WordRepository
+import com.depu.vocabapp.data.*
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val db = Room.databaseBuilder(applicationContext, ExelixDatabase::class.java, "exelix.db").build()
-        val repository = WordRepository(db.wordDao())
-        setContent { ExelixApp(repository) }
+        val database = Room.databaseBuilder(applicationContext, ExelixDatabase::class.java, "exelix_rebuild.db").build()
+        setContent { ExelixApp(database.vocabDao()) }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExelixApp(repository: WordRepository) {
+fun ExelixApp(dao: VocabDao) {
     val scope = rememberCoroutineScope()
-    val words by repository.words.collectAsState(initial = emptyList())
-    var selectedTab by remember { mutableStateOf("Library") }
+    val words by dao.observeAll().collectAsState(initial = emptyList())
+    val wordCount by dao.observeCount().collectAsState(initial = 0)
+    val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
+    var tab by remember { mutableStateOf("Library") }
     var showAdd by remember { mutableStateOf(false) }
     var search by remember { mutableStateOf("") }
-    var newWord by remember { mutableStateOf("") }
-    var newMeaning by remember { mutableStateOf("") }
-    var newExample by remember { mutableStateOf("") }
-    val dueCount = words.count { it.nextReviewAt <= System.currentTimeMillis() || it.nextReviewAt == 0L }
-    val filtered = words.filter { it.word.contains(search, true) || it.meaning.contains(search, true) }
+    var word by remember { mutableStateOf("") }
+    var meaning by remember { mutableStateOf("") }
+    var definition by remember { mutableStateOf("") }
+    var pos by remember { mutableStateOf("") }
+    var example by remember { mutableStateOf("") }
+    var synonyms by remember { mutableStateOf("") }
+    var antonyms by remember { mutableStateOf("") }
+    var collocations by remember { mutableStateOf("") }
+    var source by remember { mutableStateOf("") }
+    var tags by remember { mutableStateOf("") }
+    var feedback by remember { mutableStateOf("") }
+    val due = words.filter { it.nextReviewDate == null || it.nextReviewDate <= System.currentTimeMillis() }
+    val filtered = words.filter { listOf(it.word, it.banglaMeaning, it.englishDefinition, it.partOfSpeech, it.tags, it.synonym.orEmpty(), it.antonym.orEmpty(), it.collocation.orEmpty(), it.examSourceRef.orEmpty()).any { value -> value.contains(search, ignoreCase = true) } }
 
-    MaterialTheme(colorScheme = lightColorScheme(primary = androidx.compose.ui.graphics.Color(0xFF176B48), secondary = androidx.compose.ui.graphics.Color(0xFFD62828))) {
+    MaterialTheme(colorScheme = lightColorScheme(primary = Color(0xFF176B48), secondary = Color(0xFFD62828))) {
         Scaffold(
-            topBar = { TopAppBar(title = { Column { Text("Exelix", style = MaterialTheme.typography.titleLarge); Text("Vocabulary, built for steady progress", style = MaterialTheme.typography.bodySmall) } }) },
+            topBar = { TopAppBar(title = { Column { Text("Exelix"); Text("Vocabulary, built for steady progress", style = MaterialTheme.typography.bodySmall) } }) },
             bottomBar = {
                 NavigationBar {
-                    listOf("Home", "Library", "Review", "Backup").forEach { tab ->
-                        NavigationBarItem(selected = selectedTab == tab, onClick = { selectedTab = tab }, label = { Text(tab) }, icon = { Text(when(tab) { "Home" -> "⌂"; "Library" -> "▤"; "Review" -> "✓"; else -> "⇧" }) })
+                    listOf("Home", "Library", "Review", "Backup").forEach { name ->
+                        NavigationBarItem(selected = tab == name, onClick = { tab = name }, label = { Text(name) }, icon = { Text(when(name) { "Home" -> "⌂"; "Library" -> "▤"; "Review" -> "✓"; else -> "⇧" }) })
                     }
                 }
             }
         ) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                when (selectedTab) {
+                when (tab) {
                     "Home" -> {
-                        Text("Your study overview", style = MaterialTheme.typography.headlineSmall)
+                        Text("Study overview", style = MaterialTheme.typography.headlineSmall)
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SummaryCard("Vocabulary", words.size.toString(), Modifier.weight(1f))
-                            SummaryCard("Due", dueCount.toString(), Modifier.weight(1f))
+                            SummaryCard("Vocabulary", wordCount.toString(), Modifier.weight(1f))
+                            SummaryCard("Due", due.size.toString(), Modifier.weight(1f))
                         }
-                        SummaryCard("Learning", words.count { it.status == "Learning" }.toString(), Modifier.fillMaxWidth())
-                        Text("Your vocabulary is stored locally on this device.", style = MaterialTheme.typography.bodyMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            SummaryCard("Mastered", masteredCount.toString(), Modifier.weight(1f))
+                            SummaryCard("Learning", words.count { it.masteryStatus == "Learning" }.toString(), Modifier.weight(1f))
+                        }
+                        Text("Offline-first. Your vocabulary is stored in the app's local database.")
                     }
                     "Library" -> {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Vocabulary library", style = MaterialTheme.typography.headlineSmall)
-                            Button(onClick = { showAdd = true }) { Text("Add") }
+                            Button(onClick = { showAdd = true }) { Text("Add word") }
                         }
-                        OutlinedTextField(search, { search = it }, label = { Text("Search words") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                        OutlinedTextField(search, { search = it }, label = { Text("Search vocabulary") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                        Text("${filtered.size} words", style = MaterialTheme.typography.labelMedium)
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(filtered, key = { it.id }) { item ->
-                                Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
                                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                        Text(item.word, style = MaterialTheme.typography.titleMedium)
-                                        Text(item.meaning, style = MaterialTheme.typography.bodyLarge)
-                                        if (item.example.isNotBlank()) Text(item.example, style = MaterialTheme.typography.bodySmall)
-                                        Text(item.status, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
-                                        TextButton(onClick = { scope.launch { repository.delete(item.id) } }) { Text("Remove") }
+                                        Text(item.word, style = MaterialTheme.typography.titleLarge)
+                                        if (item.partOfSpeech.isNotBlank()) Text(item.partOfSpeech, style = MaterialTheme.typography.labelMedium)
+                                        if (item.banglaMeaning.isNotBlank()) Text(item.banglaMeaning, style = MaterialTheme.typography.bodyLarge)
+                                        if (item.englishDefinition.isNotBlank()) Text(item.englishDefinition, style = MaterialTheme.typography.bodyMedium)
+                                        if (!item.exampleSentence.isNullOrBlank()) Text("Example: ${item.exampleSentence}", style = MaterialTheme.typography.bodySmall)
+                                        if (!item.synonym.isNullOrBlank()) Text("Synonyms: ${item.synonym}", style = MaterialTheme.typography.bodySmall)
+                                        if (!item.antonym.isNullOrBlank()) Text("Antonyms: ${item.antonym}", style = MaterialTheme.typography.bodySmall)
+                                        if (item.tags.isNotBlank()) Text("Tags: ${item.tags}", style = MaterialTheme.typography.labelSmall)
+                                        Text(item.masteryStatus, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
+                                        TextButton(onClick = { scope.launch { dao.delete(item) } }) { Text("Delete") }
                                     }
                                 }
                             }
@@ -84,31 +101,41 @@ fun ExelixApp(repository: WordRepository) {
                     }
                     "Review" -> {
                         Text("Review queue", style = MaterialTheme.typography.headlineSmall)
-                        val due = words.filter { it.nextReviewAt <= System.currentTimeMillis() || it.nextReviewAt == 0L }
-                        if (due.isEmpty()) Text("Nothing due right now. Nice work.")
+                        Text("${due.size} due now", style = MaterialTheme.typography.labelLarge)
+                        val current = due.firstOrNull()
+                        if (current == null) Text("Nothing due right now. Nice work.")
                         else {
-                            var reveal by remember { mutableStateOf(false) }
-                            val current = due.firstOrNull()
-                            current?.let {
-                                Card(Modifier.fillMaxWidth()) {
-                                    Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                        Text(it.word, style = MaterialTheme.typography.headlineMedium)
-                                        if (reveal) Text(it.meaning, style = MaterialTheme.typography.titleLarge)
-                                        Button(onClick = { reveal = !reveal }) { Text(if (reveal) "Hide meaning" else "Reveal meaning") }
-                                        if (reveal) {
-                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                Button(onClick = { scope.launch { val result = com.depu.vocabapp.data.ReviewScheduler.again(); repository.update(it.copy(streak = result.streak, status = result.status, nextReviewAt = result.nextReviewAt)); reveal = false } }) { Text("Again") }
-                                                Button(onClick = { scope.launch { val streak = it.streak + 1; val days = listOf(1, 3, 7, 14, 30)[(streak - 1).coerceIn(0, 4)]; repository.update(it.copy(streak = streak, status = if (streak >= 5) "Mastered" else if (streak >= 2) "Learning" else "New", nextReviewAt = System.currentTimeMillis() + days * 24 * 60 * 60_000L)); index = (index + 1).coerceAtMost(due.lastIndex); reveal = false } }) { Text("Remembered") }
-                                            }
+                            var revealed by remember(current.id) { mutableStateOf(false) }
+                            Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp)) {
+                                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    Text(current.word, style = MaterialTheme.typography.headlineMedium)
+                                    if (current.partOfSpeech.isNotBlank()) Text(current.partOfSpeech, style = MaterialTheme.typography.labelMedium)
+                                    if (revealed) {
+                                        Text(current.banglaMeaning, style = MaterialTheme.typography.titleLarge)
+                                        if (current.englishDefinition.isNotBlank()) Text(current.englishDefinition)
+                                        if (!current.exampleSentence.isNullOrBlank()) Text(current.exampleSentence, style = MaterialTheme.typography.bodySmall)
+                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Button(onClick = {
+                                                scope.launch {
+                                                    val result = ReviewScheduler.again()
+                                                    dao.update(current.copy(correctStreak = 0, incorrectStreak = current.incorrectStreak + 1, masteryStatus = result.status, nextReviewDate = result.nextReviewAt))
+                                                }
+                                            }) { Text("Again") }
+                                            Button(onClick = {
+                                                scope.launch {
+                                                    val result = ReviewScheduler.remembered(current.correctStreak)
+                                                    dao.update(current.copy(correctStreak = result.streak, incorrectStreak = 0, masteryStatus = result.status, nextReviewDate = result.nextReviewAt))
+                                                }
+                                            }) { Text("Remembered") }
                                         }
-                                    }
+                                    } else Button(onClick = { revealed = true }) { Text("Reveal answer") }
                                 }
                             }
                         }
                     }
                     else -> {
                         Text("Backup & transfer", style = MaterialTheme.typography.headlineSmall)
-                        Text("Backup and restore tools will be built next. Your words currently stay in the local database.")
+                        Text("Backup and restore are next in the Android reconstruction. Your vocabulary is currently saved locally.")
                     }
                 }
             }
@@ -117,15 +144,29 @@ fun ExelixApp(repository: WordRepository) {
             onDismissRequest = { showAdd = false },
             title = { Text("Add vocabulary") },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(newWord, { newWord = it }, label = { Text("Word") }, singleLine = true)
-                    OutlinedTextField(newMeaning, { newMeaning = it }, label = { Text("Meaning") })
-                    OutlinedTextField(newExample, { newExample = it }, label = { Text("Example") })
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.heightIn(max = 520.dp)) {
+                    OutlinedTextField(word, { word = it }, label = { Text("Word *") }, singleLine = true)
+                    OutlinedTextField(meaning, { meaning = it }, label = { Text("Bangla meaning") })
+                    OutlinedTextField(definition, { definition = it }, label = { Text("English definition") })
+                    OutlinedTextField(pos, { pos = it }, label = { Text("Part of speech") })
+                    OutlinedTextField(example, { example = it }, label = { Text("Example sentence") })
+                    OutlinedTextField(synonyms, { synonyms = it }, label = { Text("Synonyms") })
+                    OutlinedTextField(antonyms, { antonyms = it }, label = { Text("Antonyms") })
+                    OutlinedTextField(collocations, { collocations = it }, label = { Text("Collocations") })
+                    OutlinedTextField(source, { source = it }, label = { Text("Source / exam") })
+                    OutlinedTextField(tags, { tags = it }, label = { Text("Tags") })
+                    if (feedback.isNotBlank()) Text(feedback, color = MaterialTheme.colorScheme.primary)
                 }
             },
             confirmButton = {
-                Button(enabled = newWord.isNotBlank() && newMeaning.isNotBlank(), onClick = {
-                    scope.launch { repository.add(WordEntity(word = newWord.trim(), meaning = newMeaning.trim(), example = newExample.trim())); newWord = ""; newMeaning = ""; newExample = ""; showAdd = false }
+                Button(enabled = word.isNotBlank(), onClick = {
+                    scope.launch {
+                        val normalized = word.trim().lowercase()
+                        val newItem = VocabWord(word = word.trim(), normalizedWord = normalized, banglaMeaning = meaning.trim(), englishDefinition = definition.trim(), partOfSpeech = pos.trim(), exampleSentence = example.trim().ifBlank { null }, synonym = synonyms.trim().ifBlank { null }, antonym = antonyms.trim().ifBlank { null }, collocation = collocations.trim().ifBlank { null }, examSourceRef = source.trim().ifBlank { null }, tags = tags.trim())
+                        val id = dao.insertIgnore(newItem)
+                        feedback = if (id == -1L) "This word already exists." else "Added."
+                        if (id != -1L) { word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; showAdd = false }
+                    }
                 }) { Text("Save") }
             },
             dismissButton = { TextButton(onClick = { showAdd = false }) { Text("Cancel") } }
