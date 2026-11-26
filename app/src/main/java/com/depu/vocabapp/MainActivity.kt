@@ -66,6 +66,21 @@ fun ExelixApp(dao: VocabDao) {
             }
         }
     }
+    var pendingImport by remember { mutableStateOf<List<VocabWord>>(emptyList()) }
+    var showImportPreview by remember { mutableStateOf(false) }
+    val csvImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            try {
+                val raw = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                    ?: throw IllegalStateException("Could not read selected file")
+                pendingImport = DelimitedVocabularyImporter.parse(raw)
+                if (pendingImport.isEmpty()) backupFeedback = "No vocabulary rows found. Check the file headers and content."
+                else showImportPreview = true
+            } catch (error: Exception) {
+                backupFeedback = "Import failed: ${error.message ?: "invalid file"}"
+            }
+        }
+    }
     val words by dao.observeAll().collectAsState(initial = emptyList())
     val wordCount by dao.observeCount().collectAsState(initial = 0)
     val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
@@ -193,13 +208,48 @@ fun ExelixApp(dao: VocabDao) {
                         Text("Backup & transfer", style = MaterialTheme.typography.headlineSmall)
                         Text("Save a JSON backup or merge a backup into this device. Existing words are kept; duplicates are skipped.")
                         Button(onClick = { exportLauncher.launch("Exelix-backup.json") }, modifier = Modifier.fillMaxWidth()) { Text("Export JSON backup") }
-                        OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge backup") }
+                        OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge JSON backup") }
+                        OutlinedButton(onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/vnd.ms-excel")) }, modifier = Modifier.fillMaxWidth()) { Text("Import CSV / TSV with preview") }
                         if (backupFeedback.isNotBlank()) Text(backupFeedback, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
         }
-        if (showAdd) AlertDialog(
+        if (showImportPreview) AlertDialog(
+        onDismissRequest = { showImportPreview = false },
+        title = { Text("Import preview (${pendingImport.size} rows)") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Preview of the first rows. Existing vocabulary will be skipped.")
+                pendingImport.take(5).forEach { item ->
+                    Column {
+                        Text(item.word, style = MaterialTheme.typography.titleMedium)
+                        if (item.banglaMeaning.isNotBlank()) Text(item.banglaMeaning)
+                        if (item.englishDefinition.isNotBlank()) Text(item.englishDefinition, style = MaterialTheme.typography.bodySmall)
+                    }
+                    Divider()
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                scope.launch {
+                    val batch = dao.insertBatch(ImportBatch(fileName = "CSV/TSV import", wordCount = pendingImport.size))
+                    var added = 0
+                    var duplicates = 0
+                    pendingImport.forEach { entry ->
+                        val result = dao.insertIgnore(entry.copy(importBatchId = batch))
+                        if (result == -1L) duplicates++ else added++
+                    }
+                    backupFeedback = "Import complete: $added added, $duplicates duplicates skipped."
+                    pendingImport = emptyList()
+                    showImportPreview = false
+                }
+            }) { Text("Import ${pendingImport.size} words") }
+        },
+        dismissButton = { TextButton(onClick = { showImportPreview = false }) { Text("Cancel") } }
+    )
+    if (showAdd) AlertDialog(
             onDismissRequest = { showAdd = false },
             title = { Text(if (editingId == null) "Add vocabulary" else "Edit vocabulary") },
             text = {
