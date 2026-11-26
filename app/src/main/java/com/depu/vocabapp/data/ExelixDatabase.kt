@@ -3,7 +3,7 @@ package com.depu.vocabapp.data
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-@Database(entities = [WordEntity::class], version = 1, exportSchema = false)
+@Database(entities = [VocabWord::class, ImportBatch::class], version = 1, exportSchema = true)
 abstract class ExelixDatabase : RoomDatabase() {
-    abstract fun wordDao(): WordDao
+    abstract fun vocabDao(): VocabDao
 }
