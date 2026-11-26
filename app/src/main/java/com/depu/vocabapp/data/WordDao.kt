@@ -1,28 +1,40 @@
 package com.depu.vocabapp.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface WordDao {
-    @Query("SELECT * FROM words ORDER BY word COLLATE NOCASE")
-    fun observeAll(): Flow<List<WordEntity>>
+interface VocabDao {
+    @Query("SELECT * FROM vocabulary ORDER BY word COLLATE NOCASE")
+    fun observeAll(): Flow<List<VocabWord>>
 
-    @Query("SELECT * FROM words WHERE nextReviewAt <= :now OR nextReviewAt = 0 ORDER BY createdAt")
-    fun observeDue(now: Long): Flow<List<WordEntity>>
+    @Query("SELECT * FROM vocabulary WHERE word LIKE '%' || :query || '%' OR banglaMeaning LIKE '%' || :query || '%' OR englishDefinition LIKE '%' || :query || '%' OR tags LIKE '%' || :query || '%' ORDER BY word COLLATE NOCASE")
+    fun search(query: String): Flow<List<VocabWord>>
 
-    @Insert
-    suspend fun insert(word: WordEntity): Long
+    @Query("SELECT * FROM vocabulary WHERE nextReviewDate IS NULL OR nextReviewDate <= :now ORDER BY COALESCE(nextReviewDate, 0), word COLLATE NOCASE")
+    fun observeDue(now: Long = System.currentTimeMillis()): Flow<List<VocabWord>>
+
+    @Query("SELECT COUNT(*) FROM vocabulary")
+    fun observeCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM vocabulary WHERE masteryStatus = 'Mastered'")
+    fun observeMasteredCount(): Flow<Int>
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(word: VocabWord): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIgnore(word: VocabWord): Long
 
     @Update
-    suspend fun update(word: WordEntity)
+    suspend fun update(word: VocabWord)
 
-    @Query("DELETE FROM words WHERE id = :id")
-    suspend fun delete(id: Long)
+    @Delete
+    suspend fun delete(word: VocabWord)
 
-    @Query("SELECT COUNT(*) FROM words")
-    suspend fun count(): Int
+    @Insert
+    suspend fun insertBatch(batch: ImportBatch): Long
+
+    @Query("SELECT * FROM import_batches ORDER BY importedAt DESC")
+    fun observeBatches(): Flow<List<ImportBatch>>
 }
