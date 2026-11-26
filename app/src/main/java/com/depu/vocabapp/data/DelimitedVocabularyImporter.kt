@@ -49,25 +49,42 @@ object DelimitedVocabularyImporter {
         var row = mutableListOf<String>()
         val cell = StringBuilder()
         var quoted = false
+        var afterQuote = false
         var i = 0
         while (i < text.length) {
             val c = text[i]
             when {
-                c == '"' && quoted && i + 1 < text.length && text[i + 1] == '"' -> { cell.append('"'); i++ }
-                c == '"' -> quoted = !quoted
-                c == delimiter && !quoted -> { row.add(cell.toString()); cell.clear() }
-                (c == '\n' || c == '\r') && !quoted -> {
-                    row.add(cell.toString()); cell.clear()
-                    rows.add(row); row = mutableListOf()
-                    if (c == '\r' && i + 1 < text.length && text[i + 1] == '\n') i++
+                quoted && c == '"' && i + 1 < text.length && text[i + 1] == '"' -> {
+                    cell.append('"')
+                    i++
                 }
+                quoted && c == '"' -> {
+                    quoted = false
+                    afterQuote = true
+                }
+                !quoted && c == '"' && cell.isEmpty() && !afterQuote -> quoted = true
+                !quoted && c == delimiter -> {
+                    row.add(cell.toString())
+                    cell.clear()
+                    afterQuote = false
+                }
+                !quoted && (c == '\\n' || c == '\\r') -> {
+                    row.add(cell.toString())
+                    cell.clear()
+                    rows.add(row)
+                    row = mutableListOf()
+                    afterQuote = false
+                    if (c == '\\r' && i + 1 < text.length && text[i + 1] == '\\n') i++
+                }
+                !quoted && afterQuote && !c.isWhitespace() -> throw IllegalArgumentException("Unexpected character after a quoted field.")
                 else -> cell.append(c)
             }
             i++
         }
+        if (quoted) throw IllegalArgumentException("A quoted CSV field was not closed.")
         row.add(cell.toString())
         if (row.any { it.isNotBlank() }) rows.add(row)
-        if (quoted) throw IllegalArgumentException("A quoted CSV field was not closed.")
         return rows
     }
+}
 }
