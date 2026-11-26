@@ -1,0 +1,12 @@
+{
+  "name": "Exelix Vocabulary",
+  "short_name": "Exelix",
+  "description": "An offline-first vocabulary learning and review app.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f7fb",
+  "theme_color": "#17324d",
+  "icons": []
+}
