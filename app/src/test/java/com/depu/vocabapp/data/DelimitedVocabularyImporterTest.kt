@@ -20,6 +20,10 @@ class DelimitedVocabularyImporterTest {
     @Test fun skipsBlankWordRows() {
         assertEquals(1, DelimitedVocabularyImporter.parse("Word,Meaning\na,one\n,empty").size)
     }
+    @Test fun rejectsQuoteInsideUnquotedField() {
+        try { DelimitedVocabularyImporter.parse("Word,Meaning\\na,mis\\"quoted") ; fail("Expected parse error") }
+        catch (_: IllegalArgumentException) { }
+    }
     @Test fun rejectsUnclosedQuote() {
         try { DelimitedVocabularyImporter.parse("Word,Meaning\na,\"bad") ; fail("Expected parse error") }
         catch (_: IllegalArgumentException) { }
