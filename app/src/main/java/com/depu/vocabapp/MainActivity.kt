@@ -97,7 +97,7 @@ fun ExelixApp(repository: WordRepository) {
                                         Button(onClick = { reveal = !reveal }) { Text(if (reveal) "Hide meaning" else "Reveal meaning") }
                                         if (reveal) {
                                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                Button(onClick = { scope.launch { repository.update(it.copy(streak = 0, status = "Learning", nextReviewAt = System.currentTimeMillis() + 10 * 60_000)); reveal = false } }) { Text("Again") }
+                                                Button(onClick = { scope.launch { val result = com.depu.vocabapp.data.ReviewScheduler.again(); repository.update(it.copy(streak = result.streak, status = result.status, nextReviewAt = result.nextReviewAt)); reveal = false } }) { Text("Again") }
                                                 Button(onClick = { scope.launch { val streak = it.streak + 1; val days = listOf(1, 3, 7, 14, 30)[(streak - 1).coerceIn(0, 4)]; repository.update(it.copy(streak = streak, status = if (streak >= 5) "Mastered" else if (streak >= 2) "Learning" else "New", nextReviewAt = System.currentTimeMillis() + days * 24 * 60 * 60_000L)); index = (index + 1).coerceAtMost(due.lastIndex); reveal = false } }) { Text("Remembered") }
                                             }
                                         }
