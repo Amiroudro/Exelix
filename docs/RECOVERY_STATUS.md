@@ -16,7 +16,13 @@
 ## Handling rule
 Keep claims evidence-based. Mark features as reconstructed or untested until validated.
 
-## Browser reconstruction status (2026-11-27)
+## Android reconstruction status (2026-11-27)
+- Android-native project scaffold committed: Kotlin, Jetpack Compose, Room, original package name `com.depu.vocabapp`.
+- Initial native screens: Home overview, Vocabulary Library with search/add/remove, Review queue with again/remembered actions, and a Backup placeholder.
+- Automated Android debug build workflow added. CI build is in progress; APK is not yet verified or available.
+- Browser/PWA development is paused by user request.
+
+## Browser reconstruction status (paused, 2026-11-27)
 - Browser-first vocabulary app is in `index.html`; local persistence, import/backup, and basic review logic are reconstructed.
 - Responsive UI styling has been refined toward a clean editorial study-workspace look with a restrained Bangladesh-inspired green/red accent.
 - Recent functional improvements: due-now review filter; search across part of speech, synonyms, antonyms, collocations, source, and tags; expanded card/flashcard detail display; CSV/TSV/Markdown parsing with quoted delimiters; header-based import mapping for metadata; normalized duplicate checks for legacy backup records.
