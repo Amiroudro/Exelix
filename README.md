@@ -30,3 +30,7 @@ This browser prototype does not require a server or account. Vocabulary data is 
 ## License
 
 License has not yet been chosen. Do not assume third-party asset licenses.
+
+## Progressive web app (PWA)
+
+Exelix includes a web manifest, app icon, and service worker for offline-shell caching. It requires HTTPS (or localhost) to activate the service worker. Hosting and installability are not yet confirmed because GitHub Actions deployment runs are currently failing before steps start. See [PWA notes](docs/PWA_NOTES.md).
