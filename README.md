@@ -15,7 +15,7 @@ Exelix is a personal vocabulary-learning app. **Android-native APK reconstructio
 Native project files are in the repository root and `app/` module.
 
 Native features currently implemented:
-- Local Room database, vocabulary add/delete, search, and duplicate detection.
+- Local Room database, vocabulary add/edit/delete, search, and duplicate detection.
 - Recovered vocabulary metadata fields (Bangla meaning, definition, part of speech, synonyms, antonyms, collocations, examples, source, tags).
 - Overview, library, review, and backup/transfer tabs.
 - JSON backup export and merge restore, with duplicate skipping and metadata preservation.
@@ -23,8 +23,8 @@ Native features currently implemented:
 
 Build status:
 - GitHub Actions Android build workflow: `.github/workflows/android-build.yml`.
-- Android CI successfully produced the current debug APK for commit `843b549b` (build run #24), including the native JSON backup/restore screen. The APK was downloaded and archive integrity checked. It is not device-tested.
-- CI runs review-scheduler unit tests before assembling the APK; scheduler tests passed in run #24.
+- Android CI successfully produced the current debug APK for commit `94418bba` (build run #25), including vocabulary editing and native JSON backup/restore. The APK was downloaded and archive integrity checked. It is not device-tested.
+- CI runs review-scheduler unit tests before assembling the APK; scheduler tests passed in run #25.
 - Review scheduling unit tests are in CI and passed in run #17.
 
 ## Browser edition (paused)
