@@ -15,7 +15,8 @@
 - App ID is `com.depu.vocabapp.rebuild`, while namespace remains `com.depu.vocabapp`, to allow side-by-side installation and avoid replacing the original app.
 - Current native screens: Home overview; searchable vocabulary library; add word with metadata and normalized duplicate check; delete word; review queue with Again/Remembered; Backup tab placeholder.
 - Spaced review schedule is an approximation: Again schedules 10 minutes; remembered intervals are 1, 3, 7, 14, 30 days. Unit tests have been added for this scheduler.
-- CI build attempts exposed and corrected a missing Lifecycle Compose artifact and Java/Kotlin JVM-target mismatch. A subsequent Android debug build is pending/running; no APK artifact has been verified yet.
+- CI exposed and corrected a missing Lifecycle Compose artifact and Java/Kotlin JVM-target mismatch. Android debug build run #16 completed successfully for commit `33715721`; the APK artifact was downloaded, extracted, and ZIP integrity verified. Physical/emulator installation and runtime remain untested.
+- Review scheduler unit tests are present and CI has been updated to execute them; the test-enabled build is pending.
 - APK is not tested on a physical device or emulator. Backup/restore, imports, exports, history, feed, reminders, Excel support, and original UI fidelity are not yet implemented.
 
 ## Browser reconstruction (paused)
