@@ -10,7 +10,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.depu.vocabapp"
+        applicationId = "com.depu.vocabapp.rebuild"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
