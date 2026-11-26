@@ -1,6 +1,6 @@
 # Exelix
 
-Exelix is a personal vocabulary-learning app. This repository is the clean home for the recovered project and its browser-first reconstruction.
+Exelix is a personal vocabulary-learning app. Android-native reconstruction is now the primary project; the browser edition is paused.
 
 ## Project status
 
