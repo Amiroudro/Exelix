@@ -12,6 +12,9 @@ const checks = [
   ['JSON backup', /JSON\.stringify/],
   ['Import preview', /function preview\(/],
   ['Duplicate detection', /Duplicate word detected/],
+  ['Due-now review filter', /value="due">Due now/],
+  ['Metadata-aware search', /w\.synonyms,w\.antonyms,w\.collocations,w\.source,w\.pos/],
+  ['Expanded vocabulary card fields', /Antonyms: '\+esc\(w\.antonyms\)/],
   ['No remote script dependencies', !/<script[^>]+src=["']https?:/i.test(html)],
 ];
 let failed = false;
