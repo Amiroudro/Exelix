@@ -22,7 +22,8 @@ Initial native features:
 
 Build status:
 - GitHub Actions Android build workflow: `.github/workflows/android-build.yml`.
-- The build is being iterated from actual CI failures; no verified APK artifact is available yet.
+- Android CI successfully produced a debug APK for commit `33715721` (build run #16). The artifact was downloaded and APK archive integrity checked. It is not device-tested.
+- CI now also runs scheduler unit tests before assembling APK; that run is pending.
 - Review scheduling unit tests are present; test execution will be added to CI after the APK build is stable.
 
 ## Browser edition (paused)
