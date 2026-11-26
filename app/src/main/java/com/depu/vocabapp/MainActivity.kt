@@ -42,7 +42,7 @@ fun ExelixApp(repository: WordRepository) {
 
     MaterialTheme(colorScheme = lightColorScheme(primary = androidx.compose.ui.graphics.Color(0xFF176B48), secondary = androidx.compose.ui.graphics.Color(0xFFD62828))) {
         Scaffold(
-            topBar = { TopAppBar(title = { Text("Exelix", style = MaterialTheme.typography.titleLarge) }, subtitle = { Text("Vocabulary, built for steady progress") }) },
+            topBar = { TopAppBar(title = { Column { Text("Exelix", style = MaterialTheme.typography.titleLarge); Text("Vocabulary, built for steady progress", style = MaterialTheme.typography.bodySmall) } }) },
             bottomBar = {
                 NavigationBar {
                     listOf("Home", "Library", "Review", "Backup").forEach { tab ->
