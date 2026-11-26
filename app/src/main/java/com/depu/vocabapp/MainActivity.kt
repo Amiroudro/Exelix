@@ -39,7 +39,8 @@ fun ExelixApp(dao: VocabDao) {
             try {
                 val snapshot = dao.observeAll().first()
                 val data = BackupFormat.encode(snapshot)
-                context.contentResolver.openOutputStream(uri)?.use { it.write(data.toByteArray(Charsets.UTF_8)) }
+                val stream = context.contentResolver.openOutputStream(uri) ?: throw IllegalStateException("Could not create backup file")
+                stream.use { it.write(data.toByteArray(Charsets.UTF_8)) }
                 backupFeedback = "Backup saved (\${snapshot.size} words)."
             } catch (error: Exception) {
                 backupFeedback = "Backup failed: \${error.message ?: "unknown error"}"

@@ -46,7 +46,7 @@ object BackupFormat {
             if (word.isEmpty()) continue
             output += VocabWord(
                 word = word,
-                normalizedWord = item.optString("normalizedWord", word.trim().lowercase()).ifBlank { word.trim().lowercase() },
+                normalizedWord = word.trim().lowercase(),
                 partOfSpeech = item.optString("partOfSpeech", ""),
                 difficultyLevel = item.optString("difficultyLevel", "Unknown"),
                 banglaMeaning = item.optString("banglaMeaning", ""),
