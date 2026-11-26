@@ -71,6 +71,7 @@ fun ExelixApp(dao: VocabDao) {
     val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
     var tab by remember { mutableStateOf("Library") }
     var showAdd by remember { mutableStateOf(false) }
+    var editingId by remember { mutableStateOf<Long?>(null) }
     var search by remember { mutableStateOf("") }
     var word by remember { mutableStateOf("") }
     var meaning by remember { mutableStateOf("") }
@@ -114,7 +115,7 @@ fun ExelixApp(dao: VocabDao) {
                     "Library" -> {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Vocabulary library", style = MaterialTheme.typography.headlineSmall)
-                            Button(onClick = { showAdd = true }) { Text("Add word") }
+                            Button(onClick = { editingId = null; word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; feedback = ""; showAdd = true }) { Text("Add word") }
                         }
                         OutlinedTextField(search, { search = it }, label = { Text("Search vocabulary") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                         Text("${filtered.size} words", style = MaterialTheme.typography.labelMedium)
@@ -131,7 +132,24 @@ fun ExelixApp(dao: VocabDao) {
                                         if (!item.antonym.isNullOrBlank()) Text("Antonyms: ${item.antonym}", style = MaterialTheme.typography.bodySmall)
                                         if (item.tags.isNotBlank()) Text("Tags: ${item.tags}", style = MaterialTheme.typography.labelSmall)
                                         Text(item.masteryStatus, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
-                                        TextButton(onClick = { scope.launch { dao.delete(item) } }) { Text("Delete") }
+                                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            TextButton(onClick = {
+                                                editingId = item.id
+                                                word = item.word
+                                                meaning = item.banglaMeaning
+                                                definition = item.englishDefinition
+                                                pos = item.partOfSpeech
+                                                example = item.exampleSentence.orEmpty()
+                                                synonyms = item.synonym.orEmpty()
+                                                antonyms = item.antonym.orEmpty()
+                                                collocations = item.collocation.orEmpty()
+                                                source = item.examSourceRef.orEmpty()
+                                                tags = item.tags
+                                                feedback = ""
+                                                showAdd = true
+                                            }) { Text("Edit") }
+                                            TextButton(onClick = { scope.launch { dao.delete(item) } }) { Text("Delete") }
+                                        }
                                     }
                                 }
                             }
@@ -183,7 +201,7 @@ fun ExelixApp(dao: VocabDao) {
         }
         if (showAdd) AlertDialog(
             onDismissRequest = { showAdd = false },
-            title = { Text("Add vocabulary") },
+            title = { Text(if (editingId == null) "Add vocabulary" else "Edit vocabulary") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.heightIn(max = 520.dp)) {
                     OutlinedTextField(word, { word = it }, label = { Text("Word *") }, singleLine = true)
@@ -203,12 +221,25 @@ fun ExelixApp(dao: VocabDao) {
                 Button(enabled = word.isNotBlank(), onClick = {
                     scope.launch {
                         val normalized = word.trim().lowercase()
-                        val newItem = VocabWord(word = word.trim(), normalizedWord = normalized, banglaMeaning = meaning.trim(), englishDefinition = definition.trim(), partOfSpeech = pos.trim(), exampleSentence = example.trim().ifBlank { null }, synonym = synonyms.trim().ifBlank { null }, antonym = antonyms.trim().ifBlank { null }, collocation = collocations.trim().ifBlank { null }, examSourceRef = source.trim().ifBlank { null }, tags = tags.trim())
-                        val id = dao.insertIgnore(newItem)
-                        feedback = if (id == -1L) "This word already exists." else "Added."
-                        if (id != -1L) { word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; showAdd = false }
+                        val common = VocabWord(word = word.trim(), normalizedWord = normalized, banglaMeaning = meaning.trim(), englishDefinition = definition.trim(), partOfSpeech = pos.trim(), exampleSentence = example.trim().ifBlank { null }, synonym = synonyms.trim().ifBlank { null }, antonym = antonyms.trim().ifBlank { null }, collocation = collocations.trim().ifBlank { null }, examSourceRef = source.trim().ifBlank { null }, tags = tags.trim())
+                        val currentId = editingId
+                        if (currentId != null) {
+                            val duplicate = words.any { it.id != currentId && it.normalizedWord == normalized }
+                            val existing = words.firstOrNull { it.id == currentId }
+                            if (duplicate) feedback = "Another entry already uses this word."
+                            else if (existing != null) {
+                                dao.update(existing.copy(word = common.word, normalizedWord = common.normalizedWord, banglaMeaning = common.banglaMeaning, englishDefinition = common.englishDefinition, partOfSpeech = common.partOfSpeech, exampleSentence = common.exampleSentence, synonym = common.synonym, antonym = common.antonym, collocation = common.collocation, examSourceRef = common.examSourceRef, tags = common.tags))
+                                showAdd = false
+                                editingId = null
+                                feedback = ""
+                            }
+                        } else {
+                            val id = dao.insertIgnore(common)
+                            feedback = if (id == -1L) "This word already exists." else "Added."
+                            if (id != -1L) { word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; showAdd = false }
+                        }
                     }
-                }) { Text("Save") }
+                }) { Text(if (editingId == null) "Save" else "Save changes") }
             },
             dismissButton = { TextButton(onClick = { showAdd = false }) { Text("Cancel") } }
         )
