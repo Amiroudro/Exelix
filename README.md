@@ -23,8 +23,8 @@ Native features currently implemented:
 
 Build status:
 - GitHub Actions Android build workflow: `.github/workflows/android-build.yml`.
-- Android CI successfully produced a debug APK for commit `33715721` (build run #16). The artifact was downloaded and APK archive integrity checked. It is not device-tested.
-- CI runs review-scheduler unit tests before assembling the APK; scheduler tests passed in run #17.
+- Android CI successfully produced the current debug APK for commit `843b549b` (build run #24), including the native JSON backup/restore screen. The APK was downloaded and archive integrity checked. It is not device-tested.
+- CI runs review-scheduler unit tests before assembling the APK; scheduler tests passed in run #24.
 - Review scheduling unit tests are in CI and passed in run #17.
 
 ## Browser edition (paused)
