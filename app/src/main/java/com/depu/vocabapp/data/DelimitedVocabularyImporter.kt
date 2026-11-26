@@ -5,8 +5,10 @@ object DelimitedVocabularyImporter {
     fun parse(text: String): List<VocabWord> {
         val source = text.trimStart('\uFEFF').trim()
         if (source.isBlank()) return emptyList()
-        val delimiter = if (source.lineSequence().firstOrNull()?.count { it == '\t' } ?: 0 >
-            (source.lineSequence().firstOrNull()?.count { it == ',' } ?: 0)) '\t' else ','
+        val firstLine = source.lineSequence().firstOrNull().orEmpty()
+        val tabCount = firstLine.count { it == '\t' }
+        val commaCount = firstLine.count { it == ',' }
+        val delimiter = if (tabCount > commaCount) '\t' else ','
         val rows = parseRows(source, delimiter).filter { row -> row.any { it.isNotBlank() } }
         if (rows.size < 2) return emptyList()
         val headers = rows.first().map { normalizeHeader(it) }
