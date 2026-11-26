@@ -1,30 +1,16 @@
 # Exelix Roadmap
 
-## Milestone A — repository foundation
-- [x] Private repository initialized
-- [x] Project/recovery notes
-- [x] Browser-first offline vocabulary app baseline
+## Primary focus: Android APK reconstruction
+1. Establish native Kotlin/Jetpack Compose project with original package identity.
+2. Build a local Room vocabulary database and native CRUD screens.
+3. Reconstruct review scheduling, mastery, history, and due-state behavior from APK evidence.
+4. Implement import/export, backup/restore, and robust duplicate detection.
+5. Build debug APK in CI; verify install and runtime on a device/emulator before release.
+6. Investigate APK resource mappings and UI details; document uncertainties.
 
-## Milestone B — data reliability
-- [ ] Validate imports against diverse real files
-- [ ] Harden malformed backup handling
-- [ ] Add storage versioning and migration tests
-- [ ] Improve CSV quoting/delimiter detection
+## Deferred
+- Browser/PWA feature work and public Pages hosting.
+- Cloud sync or account features until offline core is stable and privacy requirements are clear.
 
-## Milestone C — learning experience
-- [ ] Review sessions and progress analytics
-- [ ] User-configurable intervals
-- [ ] Better due-date and history presentation
-- [ ] Accessible keyboard navigation
-
-## Milestone D — recovery
-- [ ] Map extracted APK assets using screen-level evidence
-- [ ] Recover exact source if decompiler/build tools become available
-- [ ] Reconstruct Android UI with explicit uncertainty notes
-- [ ] Build and test Android app before release claims
-
-## Milestone E — release
-- [ ] Automated syntax/tests
-- [ ] Release checklist
-- [ ] User-facing privacy and backup documentation
-- [ ] Versioned release notes
+## Evidence rule
+Original APK is evidence, but reconstructed source is not original source. Never claim builds, installation, feature parity, or UI fidelity unless verified.
