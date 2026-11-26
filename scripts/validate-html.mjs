@@ -18,6 +18,7 @@ const checks = [
   ['Quoted-delimiter import parser', /function parseDelimitedRow\(/],
   ['Header-mapped metadata import', /collocations:get\(\['collocations','collocation'\]\)/],
   ['Legacy backup duplicate normalization', /w\.normalized\|\|norm\(w\.word\)/],
+  ['Legacy storage normalization', /normalized:w\.normalized\|\|norm\(w\.word\)/],
   ['No remote script dependencies', !/<script[^>]+src=["']https?:/i.test(html)],
 ];
 let failed = false;
