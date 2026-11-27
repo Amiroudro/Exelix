@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -128,13 +129,13 @@ fun ExelixApp(dao: VocabDao) {
             topBar = { TopAppBar(title = { Column { Text("Exelix"); Text("Vocabulary, built for steady progress", style = MaterialTheme.typography.bodySmall) } }) },
             bottomBar = {
                 NavigationBar {
-                    listOf("Home", "Library", "Review", "History", "Analytics", "Backup", "Settings").forEach { name ->
+                    listOf("Home", "Library", "Review", "History", "More").forEach { name ->
                         val icon = when (name) {
                             "Home" -> Icons.Default.Home
                             "Library" -> Icons.Default.Book
                             "Review" -> Icons.Default.Check
                             "History" -> Icons.Default.History
-                            else -> Icons.Default.Save
+                            else -> Icons.Default.MoreHoriz
                         }
                         NavigationBarItem(
                             selected = tab == name,
@@ -222,6 +223,25 @@ fun ExelixApp(dao: VocabDao) {
                         }
                         Text("Recall rate is the share of review attempts marked Remembered. It is a learning signal, not a grade.", style = MaterialTheme.typography.bodySmall)
                         if (history.isEmpty()) Text("No review history yet. Review vocabulary to start building analytics.")
+                    }
+                    "More" -> {
+                        Text("More tools", style = MaterialTheme.typography.headlineSmall)
+                        Text("Study insights, backup, and app preferences.")
+                        listOf(
+                            Triple("Analytics", "Learning trends, recall, activity, and streaks.", "Analytics"),
+                            Triple("Backup & transfer", "Export or restore your vocabulary backup.", "Backup"),
+                            Triple("Settings", "Daily goal, appearance, and preferences.", "Settings")
+                        ).forEach { (title, description, destination) ->
+                            Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text(title, style = MaterialTheme.typography.titleMedium)
+                                    Text(description, style = MaterialTheme.typography.bodyMedium)
+                                    Button(onClick = { tab = destination }, modifier = Modifier.fillMaxWidth()) {
+                                        Text("Open $title")
+                                    }
+                                }
+                            }
+                        }
                     }
                     "Settings" -> {
                         Text("Settings & preferences", style = MaterialTheme.typography.headlineSmall)
