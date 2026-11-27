@@ -3,14 +3,14 @@
 This checklist applies to the reconstructed native Android app. Device QA is marked passed based on the owner's confirmation that real-device testing completed successfully.
 
 ## Build provenance
-- [x] CI Android build and unit tests passed (Build 103 / workflow run 46036326956).
-- [x] Debug APK, unsigned release APK, and unsigned AAB artifacts generated.
+- [x] CI Android build and unit tests passed (Build 103 baseline and Build 111 / workflow run 46046650507 for Markdown import/export).
+- [x] Debug APK, unsigned release APK, and unsigned AAB artifacts generated (Build 111).
 - [x] Backup v2 implementation merged into `main`.
 - [x] Owner reports real-device testing completed; all tested items OK (device/build/date details not recorded here).
 - [ ] Record device model, Android version, exact tested build number, test date, and tester when available.
 
 ## Safe test setup (Windows + Android)
-1. Download the Debug APK from the Build 103 artifact package and keep the original app installed.
+1. Download the Debug APK from the latest verified Build 111 artifact package and keep the original app installed.
 2. Install the reconstruction as a separate app. Its package is `com.depu.vocabapp.rebuild`; the original package is `com.depu.vocabapp`.
 3. If using USB/ADB, enable Developer options and USB debugging only on your own device, connect by USB, then use:
    - `adb devices` to confirm the device is authorized.
@@ -52,7 +52,7 @@ The project intentionally does not contain a keystore or signing credentials. Do
 ## Release blockers
 - [ ] Choose permanent application ID. Current reconstruction ID is `com.depu.vocabapp.rebuild`; it is not the original app ID.
 - [ ] Owner creates and securely stores release keystore; configure signing secrets in GitHub Actions. Never commit the keystore or passwords.
-- [ ] CI validation of signing-workflow hardening; no run has been confirmed for commit `4fdfdd3`.
+- [x] Unsigned-build CI path validated in Build 111; signed-keystore path remains untested because signing secrets are not configured.
 - [ ] Build signed release APK/AAB and verify signing identity.
 - [ ] Compare recovered features against the original APK; record evidence and gaps.
 - [ ] Complete release regression test on the exact candidate build and document evidence.
