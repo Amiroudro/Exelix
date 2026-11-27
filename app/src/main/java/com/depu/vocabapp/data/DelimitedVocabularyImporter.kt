@@ -93,13 +93,13 @@ object DelimitedVocabularyImporter {
                     cell.clear()
                     afterQuote = false
                 }
-                !quoted && (c == '\\n' || c == '\\r') -> {
+                !quoted && (c == '\n' || c == '\r') -> {
                     row.add(cell.toString())
                     cell.clear()
                     rows.add(row)
                     row = mutableListOf()
                     afterQuote = false
-                    if (c == '\\r' && i + 1 < text.length && text[i + 1] == '\\n') i++
+                    if (c == '\r' && i + 1 < text.length && text[i + 1] == '\n') i++
                 }
                 !quoted && afterQuote && !c.isWhitespace() -> throw IllegalArgumentException("Unexpected character after a quoted field.")
                 else -> cell.append(c)
