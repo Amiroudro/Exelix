@@ -20,7 +20,7 @@
 2. **Review UX:** automated implementation now includes a session progress indicator, completion message, and compact five-item bottom navigation with a More hub. Further refinements should follow real-device observation (answer feedback, card layout, empty/due states).
 3. **Analytics accuracy:** automated tests now cover streak continuity when today has no activity (yesterday-active streak), activity today, gaps, no activity, and future-only timestamps. Validate local date boundaries and review-event calculations on-device; consider a simple day-by-day view after runtime QA.
 4. **Recovery fidelity:** inspect APK evidence further; implement additional features only where evidence is sufficient and scope is safe.
-5. **Release hygiene:** Build #90 CI verified Debug, unsigned Release APK, unsigned AAB, and tests. CI now supports optional signing using owner-configured repository secrets and verifies signatures when enabled. Latest run must verify the signing changes. Production signing secrets are not configured in this repository; device install/upgrade QA and permanent package-ID decision remain.
+5. **Release hygiene:** Build #101 CI verified Debug, unsigned Release APK, unsigned AAB, and all unit tests. Optional owner-secret signing is wired and signature checks are enabled when signing is configured. Production signing secrets are not configured; physical device install/upgrade QA and permanent package-ID decision remain.
 
 ## Deferred
 - Browser/PWA and public Pages hosting.
