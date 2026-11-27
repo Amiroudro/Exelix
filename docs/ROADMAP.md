@@ -11,6 +11,7 @@
 - CSV/TSV importer with preview, header/delimiter handling, duplicate detection, validation, multiline/quoted fields, and limits.
 - Dashboard stats including today's activity and 7-day review/recall analytics.
 - Session-level review completion counter.
+- Review queue ordering updated to put unscheduled and oldest-due words first; ordering tests added and CI verification is pending.
 
 ### Next priorities
 1. **Physical-device QA:** install alongside original on a test device; verify navigation, DB persistence, imports, backup/restore, review scheduling, and layout/keyboard behavior.
