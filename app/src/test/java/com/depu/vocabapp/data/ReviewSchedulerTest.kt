@@ -25,4 +25,11 @@ class ReviewSchedulerTest {
     @Test fun fifthSuccessMarksMastered() {
         assertEquals("Mastered", ReviewScheduler.remembered(4, 1L).status)
     }
+    @Test fun intervalCapsAtThirtyDaysAfterFiveSuccesses() {
+        val result = ReviewScheduler.remembered(5, 1_000L)
+        assertEquals(6, result.streak)
+        assertEquals("Mastered", result.status)
+        assertEquals(1_000L + 30L * 86_400_000L, result.nextReviewAt)
+    }
+
 }
