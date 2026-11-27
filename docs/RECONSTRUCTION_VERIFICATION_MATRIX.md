@@ -49,7 +49,8 @@ Record for each release candidate:
 | IO-07 | JSON backup v1 restore | Legacy vocabulary-only backup restores | Retest |
 | IO-08 | Restore merge | Duplicate vocabulary is handled; restored review records map to local word IDs | Retest |
 | IO-09 | XLSX | Spreadsheet import/export absent or unverified; do not pass | Gap |
-| IO-10 | Markdown | Markdown import/export absent or unverified; do not pass | Gap |
+| IO-10 | Markdown export | New human-readable Markdown exporter creates sorted word headings and labeled fields; verify escaping and content on device | Retest (CI not verified) |
+| IO-11 | Markdown import | Not implemented; no import preview yet | Gap |
 
 ## Settings, navigation, and data safety
 
