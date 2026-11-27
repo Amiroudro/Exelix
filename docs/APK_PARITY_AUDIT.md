@@ -23,7 +23,7 @@ Evidence retained from Phase 5 is an APK/DEX inventory, app-owned class/method i
 
 ## High-priority parity work
 1. **Spreadsheet support (XLSX):** determine expected columns and implement import/export only after reviewing original strings/schema or user-provided behavior screenshots.
-2. **Markdown import/export:** Markdown export now exists in reconstruction; verify original format and add safe preview-based Markdown import.
+2. **Markdown import/export:** reconstruction now has export + matching preview importer; confirm original APK's format/semantics from better evidence before claiming parity.
 3. **Feeds/news synchronization:** identify expected source configuration and privacy/network behavior; do not invent endpoints.
 4. **Batch actions and tags:** verify current native app and original evidence for bulk operations.
 5. **Review reminders/workers:** determine notification permissions, reminder timing, and worker conditions from evidence.
