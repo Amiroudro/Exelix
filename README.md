@@ -18,6 +18,7 @@ Exelix is a personal vocabulary-learning app. **Android-native APK reconstructio
 - CSV/TSV import with preview, duplicate detection, delimiter/header mapping, quoted and multiline fields, limits, and validation.
 - JSON backup format v2 includes vocabulary, review history, daily goal, and theme. Restore merges vocabulary, maps history to local IDs, skips duplicates, and validates data.
 - Version 1 vocabulary-only JSON backups remain supported.
+- Markdown vocabulary export with word headings and labeled metadata (reconstruction format; not confirmed original format).
 
 ## Build and verification
 - GitHub Actions workflow: `.github/workflows/android-build.yml`.
