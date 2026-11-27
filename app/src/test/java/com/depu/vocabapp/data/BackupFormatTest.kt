@@ -68,4 +68,25 @@ class BackupFormatTest {
         assertNull(decoded.examSourceRef)
         assertNull(decoded.nextReviewDate)
     }
+    @Test fun rejectsUnsupportedBackupVersion() {
+        try {
+            BackupFormat.decode("""{"format":"Exelix Android backup","version":2,"words":[]}""")
+            fail("Expected unsupported version to be rejected")
+        } catch (_: IllegalArgumentException) { }
+    }
+
+    @Test fun rejectsForeignBackupFormat() {
+        try {
+            BackupFormat.decode("""{"format":"Other app backup","version":1,"words":[]}""")
+            fail("Expected foreign backup format to be rejected")
+        } catch (_: IllegalArgumentException) { }
+    }
+
+    @Test fun rejectsBackupOverSizeLimit() {
+        try {
+            BackupFormat.decode("""{"words":[]}""" + " ".repeat(10_000_001))
+            fail("Expected oversized backup to be rejected")
+        } catch (_: IllegalArgumentException) { }
+    }
+
 }
