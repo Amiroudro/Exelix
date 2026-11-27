@@ -123,7 +123,7 @@ fun ExelixApp(dao: VocabDao) {
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 20).coerceIn(5, 100)) }
     var themePreference by remember { mutableStateOf(preferences.getString("theme", "System") ?: "System") }
     val darkTheme = themePreference == "Dark" || (themePreference == "System" && androidx.compose.foundation.isSystemInDarkTheme())
-    var tab by remember { mutableStateOf("Library") }
+    var tab by remember { mutableStateOf("Home") }
     var showAdd by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<VocabWord?>(null) }
     var editingId by remember { mutableStateOf<Long?>(null) }
