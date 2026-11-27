@@ -81,11 +81,12 @@ fun ExelixApp(dao: VocabDao) {
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             try {
-                val raw = readUriTextLimited(context, uri, 10_000_000)                val restored = BackupFormat.decodeSnapshot(raw)
+                val raw = readUriTextLimited(context, uri, 10_000_000)
+                val restored = BackupFormat.decodeSnapshot(raw)
                 val result = dao.mergeImport("JSON backup", restored.words)
                 val existingHistory = dao.observeAllHistoryForBackup().first()
                 val existingKeys = existingHistory.map { "${it.word.trim().lowercase()}|${it.remembered}|${it.reviewedAt}" }.toSet()
-                val historyToRestore = restored.history.filter { event ->
+                val historyToRestore = restored.history.distinctBy { "${it.word.trim().lowercase()}|${it.remembered}|${it.reviewedAt}" }.filter { event ->
                     "${event.word.trim().lowercase()}|${event.remembered}|${event.reviewedAt}" !in existingKeys
                 }.mapNotNull { event ->
                     val vocabulary = dao.findWordByNormalized(event.word.trim().lowercase())
@@ -169,7 +170,8 @@ fun ExelixApp(dao: VocabDao) {
                 NavigationBar {
                     listOf("Home", "Library", "Review", "History", "More").forEach { name ->
                         val icon = when (name) {
-                            "Home" -> Icons.Default.Home                            "Library" -> Icons.Default.Book
+                            "Home" -> Icons.Default.Home
+                            "Library" -> Icons.Default.Book
                             "Review" -> Icons.Default.Check
                             "History" -> Icons.Default.History
                             else -> Icons.Default.MoreHoriz
@@ -248,7 +250,8 @@ fun ExelixApp(dao: VocabDao) {
                         Text("Daily activity — last 7 days", style = MaterialTheme.typography.titleMedium)
                         dayKeys.forEachIndexed { index, start ->
                             val dateLabel = java.text.SimpleDateFormat("EEE, d", java.util.Locale.getDefault()).format(java.util.Date(start))
-                            val count = dailyCounts[index]                            val recallForDay = if (count == 0) "—" else "${dailyRemembered[index] * 100 / count}% recall"
+                            val count = dailyCounts[index]
+                            val recallForDay = if (count == 0) "—" else "${dailyRemembered[index] * 100 / count}% recall"
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(dateLabel, modifier = Modifier.width(72.dp), style = MaterialTheme.typography.bodySmall)
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -327,7 +330,8 @@ fun ExelixApp(dao: VocabDao) {
                     "Library" -> {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Vocabulary library", style = MaterialTheme.typography.headlineSmall)
-                            Button(onClick = { editingId = null; word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; feedback = ""; showAdd = true }) { Text("Add word") }                        }
+                            Button(onClick = { editingId = null; word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; feedback = ""; showAdd = true }) { Text("Add word") }
+                        }
                         OutlinedTextField(search, { search = it }, label = { Text("Search vocabulary") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                         Text("${filtered.size} words", style = MaterialTheme.typography.labelMedium)
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -406,7 +410,8 @@ fun ExelixApp(dao: VocabDao) {
                                                 }
                                             }) { Text("Remembered") }
                                         }
-                                    } else Button(onClick = { revealed = true }) { Text("Reveal answer") }                                }
+                                    } else Button(onClick = { revealed = true }) { Text("Reveal answer") }
+                                }
                             }
                         }
                     }
@@ -485,7 +490,8 @@ fun ExelixApp(dao: VocabDao) {
         onDismissRequest = { pendingDelete = null },
         title = { Text("Delete vocabulary?") },
         text = { Text("Delete \"${pendingDelete?.word}\" from your library? This cannot be undone.") },
-        confirmButton = {            Button(onClick = {
+        confirmButton = {
+            Button(onClick = {
                 val target = pendingDelete
                 pendingDelete = null
                 if (target != null) scope.launch { dao.delete(target) }
