@@ -94,6 +94,13 @@ fun ExelixApp(dao: VocabDao) {
     val todayStart = remember { java.util.Calendar.getInstance().apply { set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }.timeInMillis }
     val reviewedToday by dao.observeReviewCountSince(todayStart).collectAsState(initial = 0)
     val rememberedToday by dao.observeRememberedCountSince(todayStart).collectAsState(initial = 0)
+    val weekStart = remember { java.util.Calendar.getInstance().apply {
+        set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+        add(java.util.Calendar.DAY_OF_YEAR, -6)
+    }.timeInMillis }
+    val reviewedThisWeek by dao.observeReviewCountSince(weekStart).collectAsState(initial = 0)
+    val rememberedThisWeek by dao.observeRememberedCountSince(weekStart).collectAsState(initial = 0)
+    val weeklyRecallPercent = if (reviewedThisWeek > 0) rememberedThisWeek * 100 / reviewedThisWeek else 0
     var tab by remember { mutableStateOf("Library") }
     var showAdd by remember { mutableStateOf(false) }
     var editingId by remember { mutableStateOf<Long?>(null) }
@@ -151,6 +158,12 @@ fun ExelixApp(dao: VocabDao) {
                             SummaryCard("Reviewed today", reviewedToday.toString(), Modifier.weight(1f))
                             SummaryCard("Remembered", rememberedToday.toString(), Modifier.weight(1f))
                         }
+                        Text("Last 7 days", style = MaterialTheme.typography.titleMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            SummaryCard("Review events", reviewedThisWeek.toString(), Modifier.weight(1f))
+                            SummaryCard("Recall rate", if (reviewedThisWeek == 0) "—" else "$weeklyRecallPercent%", Modifier.weight(1f))
+                        }
+                        Text(if (reviewedThisWeek == 0) "Your weekly learning stats will appear after reviewing words." else "$rememberedThisWeek remembered out of $reviewedThisWeek reviews in the last 7 days.")
                         Text("Offline-first. Your vocabulary is stored in the app's local database.")
                     }
                     "Library" -> {
