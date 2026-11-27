@@ -3,6 +3,8 @@ package com.depu.vocabapp.data
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
+data class ImportMergeResult(val added: Int, val duplicates: Int)
+
 @Dao
 interface VocabDao {
     @Insert
