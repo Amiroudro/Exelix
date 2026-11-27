@@ -3,7 +3,7 @@
 ## Release identity
 - Reconstructed application ID: `com.depu.vocabapp.rebuild` (kept separate from original `com.depu.vocabapp`).
 - Release version currently set to `1.0.0`, version code `1`.
-- This is a reconstruction, not recovered original source or verified feature parity.
+- This is a reconstruction, not recovered original source or verified feature parity.\n- **Choose the permanent production application ID before publishing.** The current `com.depu.vocabapp.rebuild` ID is provisional; changing package ID after publication creates a different app. It cannot be signed as an update to the original package without the original app's signing key.
 - Automatic Android backup is disabled. Use the in-app JSON export before uninstalling or moving devices; the JSON export currently contains vocabulary only, not review history or preferences.
 
 ## CI artifacts
