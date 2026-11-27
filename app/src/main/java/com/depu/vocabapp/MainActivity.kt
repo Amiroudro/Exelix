@@ -190,15 +190,7 @@ fun ExelixApp(dao: VocabDao) {
                         }
                         val activeDays = dailyCounts.count { it > 0 }
                         val maxDaily = (dailyCounts.maxOrNull() ?: 0).coerceAtLeast(1)
-                        var streak = 0
-                        for (offset in 0..365) {
-                            val dayStart = java.util.Calendar.getInstance().apply {
-                                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
-                                add(java.util.Calendar.DAY_OF_YEAR, -offset)
-                            }.timeInMillis
-                            val dayEnd = dayStart + 24L * 60 * 60 * 1000
-                            if (history.any { it.reviewedAt >= dayStart && it.reviewedAt < dayEnd }) streak++ else break
-                        }
+                        val streak = StudyStreak.calculate(history.map { it.reviewedAt })
                         val totalRemembered = history.count { it.remembered }
                         val totalRecall = if (history.isEmpty()) 0 else totalRemembered * 100 / history.size
                         Text("Learning analytics", style = MaterialTheme.typography.headlineSmall)
