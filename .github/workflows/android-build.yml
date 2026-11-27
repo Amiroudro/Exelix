@@ -30,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Build debug APK
-        run: gradle testDebugUnitTest assembleDebug assembleRelease
+        run: gradle testDebugUnitTest assembleDebug assembleRelease bundleRelease
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
