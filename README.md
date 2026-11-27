@@ -25,6 +25,7 @@ Exelix is a personal vocabulary-learning app. **Android-native APK reconstructio
 - Backup v2 changes merged into main via PR #1.
 - Physical-device runtime testing remains pending; CI is not device QA.
 - Release signing secrets are not configured, so release outputs are unsigned.
+- The CI workflow now fails fast on partial/malformed signing configuration and checks keystore password/alias before attempting signed builds; signed artifacts are verified.
 - See [release/device QA checklist](docs/RELEASE_QA.md) and [roadmap](docs/ROADMAP.md).
 
 ## Browser edition (paused)
