@@ -26,7 +26,7 @@ Exelix is a personal vocabulary-learning app. **Android-native APK reconstructio
 - **Owner-confirmed real-device testing: all tested functionality reported OK** (exact device/build/test evidence not yet recorded).
 - Release signing secrets are not configured, so release outputs are unsigned.
 - The CI workflow now fails fast on partial/malformed signing configuration and checks keystore password/alias before attempting signed builds; signed artifacts are verified when signing is configured.
-- See [release/device QA checklist](docs/RELEASE_QA.md) and [roadmap](docs/ROADMAP.md).
+- See [release/device QA checklist](docs/RELEASE_QA.md), [repeatable verification matrix](docs/RECONSTRUCTION_VERIFICATION_MATRIX.md), and [roadmap](docs/ROADMAP.md).
 
 ## Original APK parity
 - Evidence-based gap inventory: [APK parity audit](docs/APK_PARITY_AUDIT.md). APK identifier evidence suggests XLSX import/export, Markdown import/export, feed/news sync, batch/tag operations, and reminder workers require further verification or reconstruction. Exact behavior is not yet confirmed.
