@@ -168,7 +168,9 @@ fun ExelixApp(dao: VocabDao) {
                             SummaryCard("Recall", if (reviewedThisWeek == 0) "—" else "$weeklyRecallPercent%", Modifier.weight(1f))
                         }
                         Text(if (reviewedThisWeek == 0) "Start a review session to build your learning insights." else "$rememberedThisWeek remembered from $reviewedThisWeek review attempts over the last 7 days.")
-                        Text("Daily goal: $reviewedToday / $dailyGoal reviews")\n                        LinearProgressIndicator(progress = { (reviewedToday.toFloat() / dailyGoal).coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())\n                        Text(if (reviewedToday >= dailyGoal) "Daily goal reached!" else "Open Analytics for daily activity, streaks, and detailed learning stats.")
+                        Text("Daily goal: $reviewedToday / $dailyGoal reviews")
+                        LinearProgressIndicator(progress = { (reviewedToday.toFloat() / dailyGoal).coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
+                        Text(if (reviewedToday >= dailyGoal) "Daily goal reached!" else "Open Analytics for daily activity, streaks, and detailed learning stats.")
                         Text("Offline-first. Your vocabulary is stored in the app's local database.")
                     }
                     "Analytics" -> {
