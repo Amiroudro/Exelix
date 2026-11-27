@@ -396,7 +396,8 @@ fun ExelixApp(dao: VocabDao) {
                         }
                     }
                     "History" -> {
-                        Text("Study history", style = MaterialTheme.typography.headlineSmall)\n                        Text("Showing the most recent 200 review events.")
+                        Text("Study history", style = MaterialTheme.typography.headlineSmall)
+                        Text("Showing the most recent 200 review events.")
                         Text("Today: $reviewedToday reviews • $rememberedToday remembered", style = MaterialTheme.typography.bodyMedium)
                         if (history.isEmpty()) Text("Your review activity will appear here after your first review.")
                         else LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
