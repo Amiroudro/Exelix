@@ -29,6 +29,9 @@
 4. **CI validation:** confirm the hardened signing workflow is tested by a successful CI run.
 5. **Release readiness:** record candidate-build QA evidence, versioning, privacy disclosures, release notes, and distribution decision.
 
+## Verification matrix
+- A repeatable workflow-level test matrix now covers core offline CRUD, reviews/history/analytics, CSV/TSV and backup/restore, navigation/settings, data safety, and explicit parity-gap status. See [RECONSTRUCTION_VERIFICATION_MATRIX.md](RECONSTRUCTION_VERIFICATION_MATRIX.md).
+
 ## Parity audit notes
 - A first evidence-based audit now maps recovered APK class/method identifiers to the reconstruction and lists unverified features. It is a gap inventory, not a parity certification. See [APK_PARITY_AUDIT.md](APK_PARITY_AUDIT.md).
 
