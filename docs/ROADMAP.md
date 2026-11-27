@@ -11,6 +11,7 @@
 - Dashboard stats and Analytics screen (all-time aggregates, recall, streak, active days, daily trend).
 - Settings: persistent daily goal (5–100), System/Light/Dark theme, review-schedule explanation and local/offline privacy notes.
 - JSON backup format v2: vocabulary, complete review-event history, daily goal, and theme.
+- Markdown vocabulary export: readable, sorted word entries with Bangla meaning, definition, POS, examples, synonyms, antonyms, collocations, source and tags. Export format is newly reconstructed, not original-format verified.
 - Restore merges vocabulary, remaps imported review events to local word IDs, avoids duplicate history events, and retains Version 1 vocabulary-only backup compatibility.
 - Backup data and preferences are bounded and validated.
 - Unit tests cover backup snapshot round-trip, v1 compatibility, settings sanitization, unsupported versions, and other core logic.
