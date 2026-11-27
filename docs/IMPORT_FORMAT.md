@@ -33,6 +33,8 @@ benevolent,দয়ালু,Kind and generous,adjective,"A benevolent person h
 - Import text is capped at 2 MB and 10,000 vocabulary rows to avoid excessive memory use.
 - Existing normalized words are skipped; the importer does not overwrite your entries.
 - Imported records are assigned to an import batch.
-- CSV quotation supports commas inside quoted cells and escaped double quotes.
+- CSV quotation supports commas inside quoted cells, escaped double quotes, and multiline fields.
+- Delimiter detection ignores commas and tabs inside quoted header fields.
+- Unexpected extra non-empty columns are rejected with a row number instead of silently dropping data; empty trailing columns are allowed.
 - This parser is for CSV/TSV, not XLSX Excel workbooks yet.
 - The new parser and preview workflow still require CI build verification and on-device testing.
