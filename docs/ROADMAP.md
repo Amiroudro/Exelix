@@ -16,9 +16,9 @@
 - Review queue ordering updated to put unscheduled and oldest-due words first; ordering tests added and **CI build/test verified in build #53**.
 
 ### Next priorities
-1. **Physical-device QA:** install alongside original on a test device; verify navigation, DB persistence, imports, backup/restore, review scheduling, and layout/keyboard behavior.
+1. **Physical-device QA:** install alongside original on a test device; verify navigation, DB persistence, imports, backup/restore, review scheduling, and layout/keyboard behavior. This remains blocked until hands-on device verification is recorded.
 2. **Review UX:** improve session pacing, answer feedback, card layout, and empty/due states based on device observations.
-3. **Analytics accuracy:** validate local date boundaries and review-event calculations; consider a simple day-by-day view after runtime QA.
+3. **Analytics accuracy:** automated tests now cover streak continuity when today has no activity (yesterday-active streak), activity today, gaps, no activity, and future-only timestamps. Validate local date boundaries and review-event calculations on-device; consider a simple day-by-day view after runtime QA.
 4. **Recovery fidelity:** inspect APK evidence further; implement additional features only where evidence is sufficient and scope is safe.
 5. **Release hygiene:** versioning, signed release build, privacy/data-loss warnings, and reproducible release checklist.
 
