@@ -23,7 +23,7 @@ object DelimitedVocabularyImporter {
         val wordIndex = index("word", "vocabulary", "term", "english", "english word")
         if (wordIndex < 0) throw IllegalArgumentException("A header column named Word is required.")
         fun value(row: List<String>, idx: Int): String = if (idx >= 0 && idx < row.size) row[idx].trim() else ""
-        val meaning = index("bangla meaning", "meaning", "bangla", "বাংলা", "বাংলা অর্থ")
+        val meaning = index("bangla meaning", "meaning", "meaning, context", "meaning context", "bangla", "বাংলা", "বাংলা অর্থ")
         val definition = index("definition", "english definition", "explanation")
         val pos = index("part of speech", "pos", "type")
         val example = index("example", "example sentence", "sentence")
