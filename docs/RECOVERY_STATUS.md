@@ -42,6 +42,14 @@
 - These are unsigned release artifacts. Signing with a user-owned private key is still required for distribution/installation as a production release.
 - Subsequent commits fix analytics truncation, cap imported file reads, validate backup format/version, clarify backup exclusions, update app label/version, and add unsigned AAB output. Their CI run is pending; do not treat these changes as verified until that run passes.
 
+## Latest verified build #90 (release candidates)
+- Run #90, commit `1ff7131250ba38aa2c63e2881c3b1e4bff8e462b`: success. CI ran `testDebugUnitTest assembleDebug assembleRelease bundleRelease`; tests passed.
+- Debug APK: 16,597,343 bytes; SHA-256 `5a55ecfc9576028eb0fae54e19829f6e1c85140ce22964da514db8650d593a35`; ZIP integrity passed.
+- Unsigned Release APK: 10,854,738 bytes; SHA-256 `4bd9e7986a5eab070477d32e80216a17185fbee760c20e50e1b7038e81a46bf7`; ZIP integrity passed.
+- Unsigned Release AAB: 10,524,070 bytes; SHA-256 `45db4fb63354b4c38a0e4a2ba90e2cd39890dd8afe36ff2e82a6d74a8bed300d`; ZIP integrity passed.
+- Build #90 includes corrected unbounded analytics, capped input reads, backup validation/limitations notice, app label/version, dashboard launch, and scrollable Home/More/Backup/Analytics/Settings.
+- Later commits add optional repository-secret signing and an additional scheduler interval-cap test; the current latest CI run must pass before those changes are considered verified.
+
 ## Pending validation
 - Install reconstruction beside original without replacing original.
 - Test dashboard numbers and date-boundary behavior.
