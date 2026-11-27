@@ -141,7 +141,7 @@ fun ExelixApp(dao: VocabDao) {
                 }
             }
         ) { padding ->
-            Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp, vertical = 10.dp).then(if (tab == "Analytics") Modifier.verticalScroll(rememberScrollState()) else Modifier), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 when (tab) {
                     "Home" -> {
                         Text("Study overview", style = MaterialTheme.typography.headlineSmall)
