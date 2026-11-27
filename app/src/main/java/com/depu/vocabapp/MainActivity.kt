@@ -105,6 +105,7 @@ fun ExelixApp(dao: VocabDao) {
     val weeklyRecallPercent = if (reviewedThisWeek > 0) rememberedThisWeek * 100 / reviewedThisWeek else 0
     var tab by remember { mutableStateOf("Library") }
     var showAdd by remember { mutableStateOf(false) }
+    var pendingDelete by remember { mutableStateOf<VocabWord?>(null) }
     var editingId by remember { mutableStateOf<Long?>(null) }
     var search by remember { mutableStateOf("") }
     var word by remember { mutableStateOf("") }
@@ -205,7 +206,7 @@ fun ExelixApp(dao: VocabDao) {
                                                 feedback = ""
                                                 showAdd = true
                                             }) { Text("Edit") }
-                                            TextButton(onClick = { scope.launch { dao.delete(item) } }) { Text("Delete") }
+                                            TextButton(onClick = { pendingDelete = item }) { Text("Delete") }
                                         }
                                     }
                                 }
@@ -316,7 +317,7 @@ fun ExelixApp(dao: VocabDao) {
         },
         dismissButton = { TextButton(onClick = { showImportPreview = false }) { Text("Cancel") } }
     )
-    if (showAdd) AlertDialog(
+    if (pendingDelete != null) AlertDialog(\n        onDismissRequest = { pendingDelete = null },\n        title = { Text("Delete vocabulary?") },\n        text = { Text("Delete \\"${pendingDelete?.word}\\" from your library? This cannot be undone.") },\n        confirmButton = {\n            Button(onClick = { val target = pendingDelete; pendingDelete = null; if (target != null) scope.launch { dao.delete(target) } }) { Text("Delete") }\n        },\n        dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("Cancel") } }\n    )\n    if (showAdd) AlertDialog(
             onDismissRequest = { showAdd = false },
             title = { Text(if (editingId == null) "Add vocabulary" else "Edit vocabulary") },
             text = {
