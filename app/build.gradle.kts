@@ -5,6 +5,11 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+val releaseStoreFile = System.getenv("EXELIX_RELEASE_STORE_FILE")
+val releaseStorePassword = System.getenv("EXELIX_RELEASE_STORE_PASSWORD")
+val releaseKeyAlias = System.getenv("EXELIX_RELEASE_KEY_ALIAS")
+val releaseKeyPassword = System.getenv("EXELIX_RELEASE_KEY_PASSWORD")
+
 android {
     namespace = "com.depu.vocabapp"
     compileSdk = 35
@@ -22,6 +27,27 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+
+    signingConfigs {
+        create("release") {
+            if (!releaseStoreFile.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() &&
+                !releaseKeyAlias.isNullOrBlank() && !releaseKeyPassword.isNullOrBlank()) {
+                storeFile = file(releaseStoreFile)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("release") {
+            if (!releaseStoreFile.isNullOrBlank() && !releaseStorePassword.isNullOrBlank() &&
+                !releaseKeyAlias.isNullOrBlank() && !releaseKeyPassword.isNullOrBlank()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
 
     buildFeatures { compose = true }
 }
