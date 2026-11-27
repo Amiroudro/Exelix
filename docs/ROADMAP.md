@@ -15,19 +15,19 @@
 - Backup data and preferences are bounded and validated.
 - Unit tests cover backup snapshot round-trip, v1 compatibility, settings sanitization, unsupported versions, and other core logic.
 
-### Verified by CI
+### Verified by CI and device
 - **Build 103 succeeded** on 2026-11-27: Android variants and tests passed.
 - Debug APK, unsigned Release APK, and unsigned AAB were generated.
 - Backup v2 was merged into `main` via PR #1.
-- Physical-device runtime behavior is **not yet verified**.
-- Release workflow now validates signing-secret completeness, decodes the keystore, checks the configured alias/password before build, and verifies signed APK/AAB when signing is enabled. CI will validate this workflow change on its next run.
+- **Owner reports physical-device testing completed with all tested items OK.** Device/build/test details have not been logged; see [RELEASE_QA.md](RELEASE_QA.md).
+- Release workflow hardening validates signing-secret completeness, decodes the keystore, checks configured alias/password before build, and verifies signed APK/AAB when signing is enabled. A CI run for the hardening change remains unconfirmed.
 
 ### Remaining release priorities
-1. **Physical-device QA:** run the full checklist in [RELEASE_QA.md](RELEASE_QA.md). Installation, navigation, database persistence, import/export/restore, scheduling, layout, and keyboard behavior require hands-on testing.
-2. **Original-app parity audit:** compare reconstructed screens/features against original APK evidence; mark verified behavior and gaps. Do not claim parity without evidence.
-3. **Permanent application ID:** current reconstruction uses `com.depu.vocabapp.rebuild`; decide permanent ID before public release. Original app package is `com.depu.vocabapp`; original signing certificate/source are not recovered.
-4. **Release signing:** configure a secure owner-controlled keystore and GitHub secrets; generate and verify signed APK/AAB. Signing secrets are not currently configured.
-5. **Release readiness:** versioning, privacy disclosures, release notes, and final device regression.
+1. **Original-app parity audit:** compare reconstructed screens/features against original APK evidence; mark verified behavior and gaps. Do not claim parity without evidence.
+2. **Permanent application ID:** current reconstruction uses `com.depu.vocabapp.rebuild`; original app package is `com.depu.vocabapp`; original signing certificate/source are not recovered. Decide final ID before release.
+3. **Release signing:** configure a secure owner-controlled keystore and GitHub secrets; generate and verify signed APK/AAB. Signing secrets are not currently configured.
+4. **CI validation:** confirm the hardened signing workflow is tested by a successful CI run.
+5. **Release readiness:** record candidate-build QA evidence, versioning, privacy disclosures, release notes, and distribution decision.
 
 ## Deferred
 - Browser/PWA and public Pages hosting.
