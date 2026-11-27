@@ -28,3 +28,12 @@
 
 ## Evidence rule
 Original APK is evidence, not recovered source. Distinguish implemented, CI-built, device-tested, and original-app-confirmed behavior. Never claim parity without evidence.
+
+## Backup v2 completion work (PR branch)
+
+- JSON backup format v2 adds complete review-event history plus daily goal and theme preferences.
+- Restore merges vocabulary without overwriting existing entries, remaps history to local vocabulary IDs, and avoids duplicate review events by word/remembered/timestamp tuple.
+- Version 1 vocabulary-only JSON backups remain supported.
+- Settings are validated and bounded; restore writes selected preferences locally.
+- Automated unit tests cover v2 snapshot round-trip, v1 compatibility, settings sanitization, and unsupported versions.
+- Awaiting CI verification and physical-device QA; not yet a verified release build.

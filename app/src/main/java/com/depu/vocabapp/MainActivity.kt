@@ -60,15 +60,19 @@ class MainActivity : ComponentActivity() {
 fun ExelixApp(dao: VocabDao) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val preferences = remember { context.getSharedPreferences("exelix_preferences", android.content.Context.MODE_PRIVATE) }
+    var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 20).coerceIn(5, 100)) }
+    var themePreference by remember { mutableStateOf(preferences.getString("theme", "System") ?: "System") }
     var backupFeedback by remember { mutableStateOf("") }
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) scope.launch {
             try {
                 val snapshot = dao.observeAll().first()
-                val data = BackupFormat.encode(snapshot)
+                val fullHistory = dao.observeAllHistoryForBackup().first()
+                val data = BackupFormat.encode(snapshot, fullHistory, dailyGoal, themePreference)
                 val stream = context.contentResolver.openOutputStream(uri) ?: throw IllegalStateException("Could not create backup file")
                 stream.use { it.write(data.toByteArray(Charsets.UTF_8)) }
-                backupFeedback = "Backup saved (${snapshot.size} words)."
+                backupFeedback = "Full backup saved: ${snapshot.size} words, ${fullHistory.size} review events, settings."
             } catch (error: Exception) {
                 backupFeedback = "Backup failed: ${error.message ?: "unknown error"}"
             }
@@ -77,10 +81,21 @@ fun ExelixApp(dao: VocabDao) {
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             try {
-                val raw = readUriTextLimited(context, uri, 10_000_000)
-                val restored = BackupFormat.decode(raw)
-                val result = dao.mergeImport("JSON backup", restored)
-                backupFeedback = "Restore finished: ${result.added} added, ${result.duplicates} duplicates skipped."
+                val raw = readUriTextLimited(context, uri, 10_000_000)                val restored = BackupFormat.decodeSnapshot(raw)
+                val result = dao.mergeImport("JSON backup", restored.words)
+                val existingHistory = dao.observeAllHistoryForBackup().first()
+                val existingKeys = existingHistory.map { "${it.word.trim().lowercase()}|${it.remembered}|${it.reviewedAt}" }.toSet()
+                val historyToRestore = restored.history.filter { event ->
+                    "${event.word.trim().lowercase()}|${event.remembered}|${event.reviewedAt}" !in existingKeys
+                }.mapNotNull { event ->
+                    val vocabulary = dao.findWordByNormalized(event.word.trim().lowercase())
+                    vocabulary?.let { StudyHistoryEvent(vocabularyId = it.id, word = it.word, remembered = event.remembered, reviewedAt = event.reviewedAt) }
+                }
+                if (historyToRestore.isNotEmpty()) dao.insertHistoryBatch(historyToRestore)
+                dailyGoal = restored.dailyGoal
+                themePreference = restored.theme
+                preferences.edit().putInt("daily_goal", dailyGoal).putString("theme", themePreference).apply()
+                backupFeedback = "Restore complete: ${result.added} words added, ${result.duplicates} duplicates skipped, ${historyToRestore.size} review events restored. Settings restored."
             } catch (error: Exception) {
                 backupFeedback = "Restore failed: ${error.message ?: "invalid backup"}"
             }
@@ -126,9 +141,6 @@ fun ExelixApp(dao: VocabDao) {
     val rememberedThisWeek by dao.observeRememberedCountSince(weekStart).collectAsState(initial = 0)
     val analyticsHistory by dao.observeHistorySince(weekStart).collectAsState(initial = emptyList())
     val weeklyRecallPercent = if (reviewedThisWeek > 0) rememberedThisWeek * 100 / reviewedThisWeek else 0
-    val preferences = remember { context.getSharedPreferences("exelix_preferences", android.content.Context.MODE_PRIVATE) }
-    var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 20).coerceIn(5, 100)) }
-    var themePreference by remember { mutableStateOf(preferences.getString("theme", "System") ?: "System") }
     val darkTheme = themePreference == "Dark" || (themePreference == "System" && androidx.compose.foundation.isSystemInDarkTheme())
     var tab by remember { mutableStateOf("Home") }
     var showAdd by remember { mutableStateOf(false) }
@@ -157,8 +169,7 @@ fun ExelixApp(dao: VocabDao) {
                 NavigationBar {
                     listOf("Home", "Library", "Review", "History", "More").forEach { name ->
                         val icon = when (name) {
-                            "Home" -> Icons.Default.Home
-                            "Library" -> Icons.Default.Book
+                            "Home" -> Icons.Default.Home                            "Library" -> Icons.Default.Book
                             "Review" -> Icons.Default.Check
                             "History" -> Icons.Default.History
                             else -> Icons.Default.MoreHoriz
@@ -237,8 +248,7 @@ fun ExelixApp(dao: VocabDao) {
                         Text("Daily activity — last 7 days", style = MaterialTheme.typography.titleMedium)
                         dayKeys.forEachIndexed { index, start ->
                             val dateLabel = java.text.SimpleDateFormat("EEE, d", java.util.Locale.getDefault()).format(java.util.Date(start))
-                            val count = dailyCounts[index]
-                            val recallForDay = if (count == 0) "—" else "${dailyRemembered[index] * 100 / count}% recall"
+                            val count = dailyCounts[index]                            val recallForDay = if (count == 0) "—" else "${dailyRemembered[index] * 100 / count}% recall"
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(dateLabel, modifier = Modifier.width(72.dp), style = MaterialTheme.typography.bodySmall)
                                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -317,8 +327,7 @@ fun ExelixApp(dao: VocabDao) {
                     "Library" -> {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Vocabulary library", style = MaterialTheme.typography.headlineSmall)
-                            Button(onClick = { editingId = null; word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; feedback = ""; showAdd = true }) { Text("Add word") }
-                        }
+                            Button(onClick = { editingId = null; word = ""; meaning = ""; definition = ""; pos = ""; example = ""; synonyms = ""; antonyms = ""; collocations = ""; source = ""; tags = ""; feedback = ""; showAdd = true }) { Text("Add word") }                        }
                         OutlinedTextField(search, { search = it }, label = { Text("Search vocabulary") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                         Text("${filtered.size} words", style = MaterialTheme.typography.labelMedium)
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -397,8 +406,7 @@ fun ExelixApp(dao: VocabDao) {
                                                 }
                                             }) { Text("Remembered") }
                                         }
-                                    } else Button(onClick = { revealed = true }) { Text("Reveal answer") }
-                                }
+                                    } else Button(onClick = { revealed = true }) { Text("Reveal answer") }                                }
                             }
                         }
                     }
@@ -421,7 +429,7 @@ fun ExelixApp(dao: VocabDao) {
                     }
                     else -> {
                         Text("Backup & transfer", style = MaterialTheme.typography.headlineSmall)
-                        Text("JSON backup includes vocabulary only (not review history or preferences). Restore merges into this device; existing words are kept and duplicates are skipped.")
+                        Text("Full JSON backups include vocabulary, review history, study goal, and appearance. Restore merges vocabulary and safely skips duplicate review events; current entries are preserved.")
                         Button(onClick = { exportLauncher.launch("Exelix-backup.json") }, modifier = Modifier.fillMaxWidth()) { Text("Export JSON backup") }
                         OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge JSON backup") }
                         OutlinedButton(onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/vnd.ms-excel")) }, modifier = Modifier.fillMaxWidth()) { Text("Import CSV / TSV with preview") }
@@ -477,8 +485,7 @@ fun ExelixApp(dao: VocabDao) {
         onDismissRequest = { pendingDelete = null },
         title = { Text("Delete vocabulary?") },
         text = { Text("Delete \"${pendingDelete?.word}\" from your library? This cannot be undone.") },
-        confirmButton = {
-            Button(onClick = {
+        confirmButton = {            Button(onClick = {
                 val target = pendingDelete
                 pendingDelete = null
                 if (target != null) scope.launch { dao.delete(target) }
