@@ -68,9 +68,38 @@ class BackupFormatTest {
         assertNull(decoded.examSourceRef)
         assertNull(decoded.nextReviewDate)
     }
+    @Test fun fullSnapshotRoundTripPreservesReviewEventsAndPreferences() {
+        val word = VocabWord(word = "candid", banglaMeaning = "খোলামেলা", masteryStatus = "Learning", correctStreak = 3, nextReviewDate = 123L)
+        val events = listOf(
+            StudyHistoryEvent(vocabularyId = 1, word = "candid", remembered = true, reviewedAt = 456L),
+            StudyHistoryEvent(vocabularyId = 1, word = "candid", remembered = false, reviewedAt = 789L)
+        )
+        val decoded = BackupFormat.decodeSnapshot(BackupFormat.encode(listOf(word), events, dailyGoal = 35, theme = "Dark"))
+        assertEquals("খোলামেলা", decoded.words.single().banglaMeaning)
+        assertEquals(2, decoded.history.size)
+        assertEquals(true, decoded.history[0].remembered)
+        assertEquals(456L, decoded.history[0].reviewedAt)
+        assertEquals(35, decoded.dailyGoal)
+        assertEquals("Dark", decoded.theme)
+    }
+
+    @Test fun legacyVersionOneVocabularyOnlyBackupStillLoads() {
+        val decoded = BackupFormat.decodeSnapshot("""{"format":"Exelix Android backup","version":1,"words":[{"word":"legacy"}]}""")
+        assertEquals("legacy", decoded.words.single().word)
+        assertTrue(decoded.history.isEmpty())
+        assertEquals(20, decoded.dailyGoal)
+        assertEquals("System", decoded.theme)
+    }
+
+    @Test fun backupSettingsAreSanitized() {
+        val decoded = BackupFormat.decodeSnapshot("""{"format":"Exelix Android backup","version":2,"words":[],"settings":{"dailyGoal":999,"theme":"invalid"}}""")
+        assertEquals(100, decoded.dailyGoal)
+        assertEquals("System", decoded.theme)
+    }
+
     @Test fun rejectsUnsupportedBackupVersion() {
         try {
-            BackupFormat.decode("""{"format":"Exelix Android backup","version":2,"words":[]}""")
+            BackupFormat.decode("""{"format":"Exelix Android backup","version":3,"words":[]}""")
             fail("Expected unsupported version to be rejected")
         } catch (_: IllegalArgumentException) { }
     }

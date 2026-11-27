@@ -10,6 +10,15 @@ interface VocabDao {
     @Insert
     suspend fun insertHistory(event: StudyHistoryEvent): Long
 
+    @Insert
+    suspend fun insertHistoryBatch(events: List<StudyHistoryEvent>)
+
+    @Query("SELECT * FROM study_history ORDER BY reviewedAt ASC")
+    fun observeAllHistoryForBackup(): Flow<List<StudyHistoryEvent>>
+
+    @Query("SELECT * FROM vocabulary WHERE normalizedWord = :normalized LIMIT 1")
+    suspend fun findWordByNormalized(normalized: String): VocabWord?
+
     @Query("SELECT * FROM study_history ORDER BY reviewedAt DESC LIMIT 200")
     fun observeHistory(): Flow<List<StudyHistoryEvent>>
 
