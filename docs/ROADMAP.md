@@ -23,11 +23,14 @@
 - Release workflow hardening validates signing-secret completeness, decodes the keystore, checks configured alias/password before build, and verifies signed APK/AAB when signing is enabled. A CI run for the hardening change remains unconfirmed.
 
 ### Remaining release priorities
-1. **Original-app parity audit:** compare reconstructed screens/features against original APK evidence; mark verified behavior and gaps. Do not claim parity without evidence.
+1. **Original-app parity audit:** initial evidence-based matrix added in [APK_PARITY_AUDIT.md](APK_PARITY_AUDIT.md). High-risk gaps include XLSX import/export, Markdown import/export, feed/news sync, batch actions/tags, and review worker/reminder behavior; exact original behavior remains unconfirmed.
 2. **Permanent application ID:** current reconstruction uses `com.depu.vocabapp.rebuild`; original app package is `com.depu.vocabapp`; original signing certificate/source are not recovered. Decide final ID before release.
 3. **Release signing:** configure a secure owner-controlled keystore and GitHub secrets; generate and verify signed APK/AAB. Signing secrets are not currently configured.
 4. **CI validation:** confirm the hardened signing workflow is tested by a successful CI run.
 5. **Release readiness:** record candidate-build QA evidence, versioning, privacy disclosures, release notes, and distribution decision.
+
+## Parity audit notes
+- A first evidence-based audit now maps recovered APK class/method identifiers to the reconstruction and lists unverified features. It is a gap inventory, not a parity certification. See [APK_PARITY_AUDIT.md](APK_PARITY_AUDIT.md).
 
 ## Deferred
 - Browser/PWA and public Pages hosting.
