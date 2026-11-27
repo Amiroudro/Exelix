@@ -30,6 +30,23 @@ import com.depu.vocabapp.data.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 
+private fun readUriTextLimited(context: android.content.Context, uri: android.net.Uri, maxBytes: Int): String {
+    val input = context.contentResolver.openInputStream(uri) ?: throw IllegalStateException("Could not read selected file")
+    val output = java.io.ByteArrayOutputStream()
+    val buffer = ByteArray(8192)
+    var total = 0
+    input.use { stream ->
+        while (true) {
+            val count = stream.read(buffer)
+            if (count < 0) break
+            total += count
+            if (total > maxBytes) throw IllegalArgumentException("Selected file is too large (limit ${maxBytes / 1_000_000} MB).")
+            output.write(buffer, 0, count)
+        }
+    }
+    return output.toString(Charsets.UTF_8.name())
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +77,7 @@ fun ExelixApp(dao: VocabDao) {
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             try {
-                val raw = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-                    ?: throw IllegalStateException("Could not read selected file")
+                val raw = readUriTextLimited(context, uri, 10_000_000)
                 val restored = BackupFormat.decode(raw)
                 val result = dao.mergeImport("JSON backup", restored)
                 backupFeedback = "Restore finished: ${result.added} added, ${result.duplicates} duplicates skipped."
@@ -75,8 +91,7 @@ fun ExelixApp(dao: VocabDao) {
     val csvImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             try {
-                val raw = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-                    ?: throw IllegalStateException("Could not read selected file")
+                val raw = readUriTextLimited(context, uri, 2_000_000)
                 pendingImport = DelimitedVocabularyImporter.parse(raw)
                 if (pendingImport.isEmpty()) backupFeedback = "No vocabulary rows found. Check the file headers and content."
                 else showImportPreview = true
@@ -398,7 +413,7 @@ fun ExelixApp(dao: VocabDao) {
                     }
                     else -> {
                         Text("Backup & transfer", style = MaterialTheme.typography.headlineSmall)
-                        Text("Save a JSON backup or merge a backup into this device. Existing words are kept; duplicates are skipped.")
+                        Text("JSON backup includes vocabulary only (not review history or preferences). Restore merges into this device; existing words are kept and duplicates are skipped.")
                         Button(onClick = { exportLauncher.launch("Exelix-backup.json") }, modifier = Modifier.fillMaxWidth()) { Text("Export JSON backup") }
                         OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge JSON backup") }
                         OutlinedButton(onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/vnd.ms-excel")) }, modifier = Modifier.fillMaxWidth()) { Text("Import CSV / TSV with preview") }
