@@ -57,16 +57,16 @@ object MarkdownVocabularyImporter {
         val out = StringBuilder()
         var i = 0
         while (i < value.length) {
-            if (value[i] == '\\\\' && i + 1 < value.length) {
+            if (value[i] == '\\' && i + 1 < value.length) {
                 val next = value[i + 1]
                 when (next) {
-                    '\\\\' -> { out.append('\\\\'); i += 2; continue }
+                    '\\' -> { out.append('\\'); i += 2; continue }
                     '|' -> { out.append('|'); i += 2; continue }
                 }
             }
             out.append(value[i])
             i++
         }
-        return out.toString().replace("<br>", "\\n")
+        return out.toString().replace("<br>", "\n")
     }
 }
