@@ -10,7 +10,8 @@ Use the reconstruction app only for testing. Keep the original app installed and
 
 ## Basic UI and persistence
 - [ ] App launches without crash.
-- [ ] Home, Library, Review, History, Analytics, Backup, and Settings tabs switch correctly.
+- [ ] Home, Library, Review, History, and More bottom-navigation items switch correctly.
+- [ ] More hub opens Analytics, Backup, and Settings; More remains selected while secondary pages are open.
 - [ ] Add a test word, close/reopen app, and verify it persists.
 - [ ] Edit test word and confirm changes.
 - [ ] Search for word, Bangla meaning, and tags.
@@ -22,6 +23,7 @@ Use the reconstruction app only for testing. Keep the original app installed and
 - [ ] Choose Remembered on another test word; verify history and next due date.
 - [ ] Session counter increments once for each review response.
 - [ ] Counter survives tab switching during this app session.
+- [ ] Review session progress bar increments correctly and reaches completion.
 - [ ] Empty review queue displays a clear message.
 
 ## Import and export
@@ -34,7 +36,7 @@ Use the reconstruction app only for testing. Keep the original app installed and
 
 ## Analytics / Settings
 - [ ] All-time review and recall values match review history.
-- [ ] Active days and streak are correct for test dates.
+- [ ] Active days and streak are correct for test dates, including streak continuation when today is not yet active but yesterday was.
 - [ ] Daily activity chart matches review events.
 - [ ] Set daily goal and verify Home progress updates.
 - [ ] Daily goal persists after closing/reopening.
