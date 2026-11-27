@@ -25,6 +25,18 @@ class DelimitedVocabularyImporterTest {
 a,mis"quoted""") ; fail("Expected parse error") }
         catch (_: IllegalArgumentException) { }
     }
+    @Test fun rejectsImportOverTextSizeLimit() {
+        try { DelimitedVocabularyImporter.parse("Word\n" + "a".repeat(2_000_001)); fail("Expected size limit") }
+        catch (_: IllegalArgumentException) { }
+    }
+    @Test fun rejectsImportOverRowLimit() {
+        val rows = buildString {
+            append("Word\n")
+            repeat(10_001) { append("word").append(it).append('\n') }
+        }
+        try { DelimitedVocabularyImporter.parse(rows); fail("Expected row limit") }
+        catch (_: IllegalArgumentException) { }
+    }
     @Test fun rejectsUnclosedQuote() {
         try { DelimitedVocabularyImporter.parse("Word,Meaning\na,\"bad") ; fail("Expected parse error") }
         catch (_: IllegalArgumentException) { }
