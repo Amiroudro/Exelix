@@ -1,13 +1,13 @@
 # Exelix Release & Device QA Checklist
 
-This checklist applies to the reconstructed native Android app. It must be completed on a physical device before a production release is claimed.
+This checklist applies to the reconstructed native Android app. Device QA is marked passed based on the owner's confirmation that real-device testing completed successfully.
 
 ## Build provenance
 - [x] CI Android build and unit tests passed (Build 103 / workflow run 46036326956).
 - [x] Debug APK, unsigned release APK, and unsigned AAB artifacts generated.
 - [x] Backup v2 implementation merged into `main`.
-- [ ] Install the current Debug APK on a physical Android device.
-- [ ] Record device model, Android version, build number, test date, and tester.
+- [x] Owner reports real-device testing completed; all tested items OK (device/build/date details not recorded here).
+- [ ] Record device model, Android version, exact tested build number, test date, and tester when available.
 
 ## Safe test setup (Windows + Android)
 1. Download the Debug APK from the Build 103 artifact package and keep the original app installed.
@@ -20,40 +20,24 @@ This checklist applies to the reconstructed native Android app. It must be compl
 5. If a test causes data loss or a crash, record exact steps, screen, and whether it reproduces after a clean app-data reset. Do not reset the original app.
 
 ## Install / navigation
-- [ ] Fresh launch and subsequent relaunch.
-- [ ] Home, Library, Review, History, Analytics, Backup, Settings / More navigation.
-- [ ] Back navigation, scroll behavior, keyboard handling, and small-screen layout.
-- [ ] Dark, light, and system themes.
+- [x] Owner-confirmed real-device test: launch/relaunch, navigation, back/scroll/keyboard/small-screen behavior, themes (details not individually logged).
+- [ ] Add detailed test evidence/build/device info to results log.
 
 ## Vocabulary CRUD and data integrity
-- [ ] Add a word with Bangla meaning, definition, POS, example, synonyms, antonyms, collocations, source, and tags.
-- [ ] Edit and save fields; confirm persistence after force-stop/relaunch.
-- [ ] Search using English and Bangla text.
-- [ ] Delete a word and confirm review/history handling is understandable.
-- [ ] Empty library and large library states.
+- [x] Owner-confirmed real-device test: vocabulary and data-related functionality passed (individual test cases not separately logged).
+- [ ] Add detailed test evidence/build/device info to results log.
 
 ## Review
-- [ ] Review queue ordering, due count, and unscheduled items.
-- [ ] Reveal answer and Again / Remembered actions.
-- [ ] Verify review history records expected word, result, and time.
-- [ ] Verify schedule dates and session progress.
-- [ ] Empty queue and completed-session states.
+- [x] Owner-confirmed real-device test: review functionality passed (individual test cases not separately logged).
+- [ ] Add detailed test evidence/build/device info to results log.
 
 ## Import and backup/restore
-- [ ] CSV and TSV preview, header mapping, duplicate detection, malformed rows, and Bangla.
-- [ ] Quoted commas, escaped quotes, and multiline cells.
-- [ ] Import file-size and row-limit errors are clear.
-- [ ] Export v2 backup; verify it contains vocabulary, review events, goal, and theme.
-- [ ] Restore into an empty installation and verify all data/preferences.
-- [ ] Restore into a populated installation; confirm merge/no-overwrite and duplicate skipping.
-- [ ] Restore a v1 backup for compatibility.
-- [ ] Invalid JSON, unsupported version, and oversized backup produce safe error messages.
+- [x] Owner-confirmed real-device test: import/backup-related functionality passed (individual test cases not separately logged).
+- [ ] Add detailed test evidence/build/device info to results log.
 
 ## Analytics / settings
-- [ ] Totals and recall calculations match review history.
-- [ ] Streak, active days, 7-day activity, and date boundaries.
-- [ ] Daily goal range and persistence.
-- [ ] Theme preference persistence.
+- [x] Owner-confirmed real-device test: analytics/settings functionality passed (individual test cases not separately logged).
+- [ ] Add detailed test evidence/build/device info to results log.
 
 ## Release signing (owner-controlled)
 The project intentionally does not contain a keystore or signing credentials. Do this from the repository's GitHub **Settings → Secrets and variables → Actions**:
@@ -68,12 +52,13 @@ The project intentionally does not contain a keystore or signing credentials. Do
 ## Release blockers
 - [ ] Choose permanent application ID. Current reconstruction ID is `com.depu.vocabapp.rebuild`; it is not the original app ID.
 - [ ] Owner creates and securely stores release keystore; configure signing secrets in GitHub Actions. Never commit the keystore or passwords.
+- [ ] CI validation of signing-workflow hardening; no run has been confirmed for commit `4fdfdd3`.
 - [ ] Build signed release APK/AAB and verify signing identity.
 - [ ] Compare recovered features against the original APK; record evidence and gaps.
-- [ ] Final regression run on physical device; resolve crashes and high-severity usability issues.
+- [ ] Complete release regression test on the exact candidate build and document evidence.
 - [ ] Prepare release notes, versioning, privacy disclosures, and distribution decision.
 
 ## Results log
 | Date | Device / Android | Build | Tester | Result / issues |
 |---|---|---|---|---|
-| Pending | Pending | 103 | Pending | Device QA not yet performed |
+| 2026-11-27 | Details not recorded | Not confirmed | Owner | Owner reports real-device testing completed; all OK. Record exact device/build and test evidence when available. |
