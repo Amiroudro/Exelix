@@ -4,12 +4,14 @@ package com.depu.vocabapp.data
 object DelimitedVocabularyImporter {
     fun parse(text: String): List<VocabWord> {
         val source = text.trimStart('\uFEFF').trim()
+        if (source.length > 2_000_000) throw IllegalArgumentException("Import file is too large (maximum 2 MB of text).")
         if (source.isBlank()) return emptyList()
         val firstLine = source.lineSequence().firstOrNull().orEmpty()
         val tabCount = firstLine.count { it == '\t' }
         val commaCount = firstLine.count { it == ',' }
         val delimiter = if (tabCount > commaCount) '\t' else ','
         val rows = parseRows(source, delimiter).filter { row -> row.any { it.isNotBlank() } }
+        if (rows.size > 10_001) throw IllegalArgumentException("Import contains too many rows (maximum 10,000 vocabulary entries).")
         if (rows.size < 2) return emptyList()
         val headers = rows.first().map { normalizeHeader(it) }
         fun index(vararg names: String): Int = headers.indexOfFirst { it in names.map(::normalizeHeader) }
