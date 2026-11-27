@@ -30,12 +30,17 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Prepare private release signing key (optional)
-        if: ${{ secrets.EXELIX_RELEASE_KEYSTORE_BASE64 != '' }}
+        id: release-signing
         env:
           KEYSTORE_BASE64: ${{ secrets.EXELIX_RELEASE_KEYSTORE_BASE64 }}
         run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/exelix-release-key.jks"
           echo "EXELIX_RELEASE_STORE_FILE=$RUNNER_TEMP/exelix-release-key.jks" >> "$GITHUB_ENV"
+          echo "configured=true" >> "$GITHUB_OUTPUT"
       - name: Build and test Android variants
         run: gradle testDebugUnitTest assembleDebug assembleRelease bundleRelease --no-parallel --max-workers=1
         env:
@@ -44,7 +49,7 @@ jobs:
           EXELIX_RELEASE_KEY_ALIAS: ${{ secrets.EXELIX_RELEASE_KEY_ALIAS }}
           EXELIX_RELEASE_KEY_PASSWORD: ${{ secrets.EXELIX_RELEASE_KEY_PASSWORD }}
       - name: Verify signed release APK and bundle (when signing is configured)
-        if: ${{ env.EXELIX_RELEASE_STORE_FILE != '' }}
+        if: steps.release-signing.outputs.configured == 'true'
         run: |
           APKSIGNER=$(find "$ANDROID_HOME/build-tools" -type f -name apksigner | sort | tail -n 1)
           "$APKSIGNER" verify --verbose app/build/outputs/apk/release/app-release.apk
