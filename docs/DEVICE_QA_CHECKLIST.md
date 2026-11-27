@@ -6,7 +6,8 @@ Use the reconstruction app only for testing. Keep the original app installed and
 - [ ] Confirm the installer file came from the project's GitHub Actions artifact for the expected build.
 - [ ] Ensure the original app remains installed and its data is backed up through its own supported method.
 - [ ] Install the reconstruction APK only if Android and a trusted adult helping you consider the source safe. Never bypass warnings casually.
-- [ ] Confirm the reconstruction appears as a separate app (application ID is `com.depu.vocabapp.rebuild`).\n- [ ] Confirm app label is Exelix and launch opens Home.\n- [ ] Confirm Android automatic backup is disabled; manual JSON export is the user-controlled backup path.\n- [ ] Verify manual backup warning is clear: vocabulary only, review history/preferences not included.
+- [ ] Confirm the reconstruction appears as a separate app (application ID is `com.depu.vocabapp.rebuild`).
+- [ ] Confirm app label is Exelix and launch opens Home.\n- [ ] Confirm Android automatic backup is disabled; manual JSON export is the user-controlled backup path.\n- [ ] Verify manual backup warning is clear: vocabulary only, review history/preferences not included.
 
 ## Basic UI and persistence
 - [ ] App launches without crash.
