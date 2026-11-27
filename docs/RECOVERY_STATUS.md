@@ -32,6 +32,7 @@
 - Build #76 includes: review-session progress indicator/completion message; compact bottom navigation (Home, Library, Review, History, More); More hub for Analytics, Backup, Settings; More remains selected on secondary pages; calendar-aware study streak that continues from yesterday if today has not been studied yet; tests for streak behavior.
 - APK ZIP integrity: passed (`unzip -t` reported no errors).
 - Physical-device installation and runtime QA remain unperformed.
+- CI workflow was extended after build #76 to assemble the Release variant and upload it as a separate unsigned-release artifact; the new workflow run is pending.
 
 ## Pending validation
 - Install reconstruction beside original without replacing original.
