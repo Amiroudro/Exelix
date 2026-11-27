@@ -89,6 +89,9 @@ fun ExelixApp(dao: VocabDao) {
     val wordCount by dao.observeCount().collectAsState(initial = 0)
     val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
     val history by dao.observeHistory().collectAsState(initial = emptyList())
+    val allReviewCount by dao.observeAllReviewCount().collectAsState(initial = 0)
+    val allRememberedCount by dao.observeAllRememberedCount().collectAsState(initial = 0)
+    val allReviewTimestamps by dao.observeReviewTimestamps().collectAsState(initial = emptyList())
     val importBatches by dao.observeBatches().collectAsState(initial = emptyList())
     val todayStart = remember { java.util.Calendar.getInstance().apply { set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }.timeInMillis }
     val reviewedToday by dao.observeReviewCountSince(todayStart).collectAsState(initial = 0)
@@ -99,6 +102,7 @@ fun ExelixApp(dao: VocabDao) {
     }.timeInMillis }
     val reviewedThisWeek by dao.observeReviewCountSince(weekStart).collectAsState(initial = 0)
     val rememberedThisWeek by dao.observeRememberedCountSince(weekStart).collectAsState(initial = 0)
+    val analyticsHistory by dao.observeHistorySince(weekStart).collectAsState(initial = emptyList())
     val weeklyRecallPercent = if (reviewedThisWeek > 0) rememberedThisWeek * 100 / reviewedThisWeek else 0
     val preferences = remember { context.getSharedPreferences("exelix_preferences", android.content.Context.MODE_PRIVATE) }
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 20).coerceIn(5, 100)) }
@@ -183,22 +187,22 @@ fun ExelixApp(dao: VocabDao) {
                         }.reversed()
                         val dailyCounts = dayKeys.map { start ->
                             val end = start + 24L * 60 * 60 * 1000
-                            history.count { it.reviewedAt >= start && it.reviewedAt < end }
+                            analyticsHistory.count { it.reviewedAt >= start && it.reviewedAt < end }
                         }
                         val dailyRemembered = dayKeys.map { start ->
                             val end = start + 24L * 60 * 60 * 1000
-                            history.count { it.reviewedAt >= start && it.reviewedAt < end && it.remembered }
+                            analyticsHistory.count { it.reviewedAt >= start && it.reviewedAt < end && it.remembered }
                         }
                         val activeDays = dailyCounts.count { it > 0 }
                         val maxDaily = (dailyCounts.maxOrNull() ?: 0).coerceAtLeast(1)
-                        val streak = StudyStreak.calculate(history.map { it.reviewedAt })
-                        val totalRemembered = history.count { it.remembered }
-                        val totalRecall = if (history.isEmpty()) 0 else totalRemembered * 100 / history.size
+                        val streak = StudyStreak.calculate(allReviewTimestamps)
+                        val totalRemembered = allRememberedCount
+                        val totalRecall = if (allReviewCount == 0) 0 else totalRemembered * 100 / allReviewCount
                         Text("Learning analytics", style = MaterialTheme.typography.headlineSmall)
                         Text("Insights from your saved review history", style = MaterialTheme.typography.bodyMedium)
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SummaryCard("All-time reviews", history.size.toString(), Modifier.weight(1f))
-                            SummaryCard("Overall recall", if (history.isEmpty()) "—" else "$totalRecall%", Modifier.weight(1f))
+                            SummaryCard("All-time reviews", allReviewCount.toString(), Modifier.weight(1f))
+                            SummaryCard("Overall recall", if (allReviewCount == 0) "—" else "$totalRecall%", Modifier.weight(1f))
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SummaryCard("Active days (7d)", activeDays.toString(), Modifier.weight(1f))
@@ -222,7 +226,7 @@ fun ExelixApp(dao: VocabDao) {
                             }
                         }
                         Text("Recall rate is the share of review attempts marked Remembered. It is a learning signal, not a grade.", style = MaterialTheme.typography.bodySmall)
-                        if (history.isEmpty()) Text("No review history yet. Review vocabulary to start building analytics.")
+                        if (allReviewCount == 0) Text("No review history yet. Review vocabulary to start building analytics.")
                     }
                     "More" -> {
                         Text("More tools", style = MaterialTheme.typography.headlineSmall)
