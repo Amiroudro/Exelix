@@ -11,6 +11,8 @@
 - CSV/TSV importer with preview, header/delimiter handling, duplicate detection, validation, multiline/quoted fields, and limits.
 - Dashboard stats including today's activity and 7-day review/recall analytics.
 - Session-level review completion counter.
+- Dedicated Analytics screen: all-time reviews/recall, active days, streak, 7-day trend and daily activity.
+- Settings: persistent daily goal (5–100), System/Light/Dark theme, review-schedule explanation and local/offline privacy notes.
 - Review queue ordering updated to put unscheduled and oldest-due words first; ordering tests added and **CI build/test verified in build #53**.
 
 ### Next priorities
