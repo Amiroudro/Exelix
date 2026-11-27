@@ -30,10 +30,16 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Build debug APK
-        run: gradle testDebugUnitTest assembleDebug
-      - name: Upload APK artifact
+        run: gradle testDebugUnitTest assembleDebug assembleRelease
+      - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: Exelix-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - name: Upload unsigned release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Exelix-unsigned-release-apk
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
           if-no-files-found: error
