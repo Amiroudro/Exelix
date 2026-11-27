@@ -123,7 +123,7 @@ fun ExelixApp(dao: VocabDao) {
             topBar = { TopAppBar(title = { Column { Text("Exelix"); Text("Vocabulary, built for steady progress", style = MaterialTheme.typography.bodySmall) } }) },
             bottomBar = {
                 NavigationBar {
-                    listOf("Home", "Library", "Review", "History", "Backup").forEach { name ->
+                    listOf("Home", "Library", "Review", "History", "Analytics", "Backup").forEach { name ->
                         val icon = when (name) {
                             "Home" -> Icons.Default.Home
                             "Library" -> Icons.Default.Book
@@ -147,23 +147,82 @@ fun ExelixApp(dao: VocabDao) {
                         Text("Study overview", style = MaterialTheme.typography.headlineSmall)
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SummaryCard("Vocabulary", wordCount.toString(), Modifier.weight(1f))
-                            SummaryCard("Due", due.size.toString(), Modifier.weight(1f))
+                            SummaryCard("Due now", due.size.toString(), Modifier.weight(1f))
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SummaryCard("Mastered", masteredCount.toString(), Modifier.weight(1f))
                             SummaryCard("Learning", words.count { it.masteryStatus == "Learning" }.toString(), Modifier.weight(1f))
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SummaryCard("Reviewed today", reviewedToday.toString(), Modifier.weight(1f))
+                            SummaryCard("Today's reviews", reviewedToday.toString(), Modifier.weight(1f))
                             SummaryCard("Remembered", rememberedToday.toString(), Modifier.weight(1f))
                         }
-                        Text("Last 7 days", style = MaterialTheme.typography.titleMedium)
+                        Text("This week", style = MaterialTheme.typography.titleMedium)
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            SummaryCard("Review events", reviewedThisWeek.toString(), Modifier.weight(1f))
-                            SummaryCard("Recall rate", if (reviewedThisWeek == 0) "—" else "$weeklyRecallPercent%", Modifier.weight(1f))
+                            SummaryCard("Reviews", reviewedThisWeek.toString(), Modifier.weight(1f))
+                            SummaryCard("Recall", if (reviewedThisWeek == 0) "—" else "$weeklyRecallPercent%", Modifier.weight(1f))
                         }
-                        Text(if (reviewedThisWeek == 0) "Your weekly learning stats will appear after reviewing words." else "$rememberedThisWeek remembered out of $reviewedThisWeek reviews in the last 7 days.")
+                        Text(if (reviewedThisWeek == 0) "Start a review session to build your learning insights." else "$rememberedThisWeek remembered from $reviewedThisWeek review attempts over the last 7 days.")
+                        Text("Open Analytics for daily activity, streaks, and detailed learning stats.")
                         Text("Offline-first. Your vocabulary is stored in the app's local database.")
+                    }
+                    "Analytics" -> {
+                        val dayKeys = (0..6).map { offset ->
+                            java.util.Calendar.getInstance().apply {
+                                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+                                add(java.util.Calendar.DAY_OF_YEAR, -offset)
+                            }.timeInMillis
+                        }.reversed()
+                        val dailyCounts = dayKeys.map { start ->
+                            val end = start + 24L * 60 * 60 * 1000
+                            history.count { it.reviewedAt >= start && it.reviewedAt < end }
+                        }
+                        val dailyRemembered = dayKeys.map { start ->
+                            val end = start + 24L * 60 * 60 * 1000
+                            history.count { it.reviewedAt >= start && it.reviewedAt < end && it.remembered }
+                        }
+                        val activeDays = dailyCounts.count { it > 0 }
+                        val maxDaily = (dailyCounts.maxOrNull() ?: 0).coerceAtLeast(1)
+                        var streak = 0
+                        for (offset in 0..365) {
+                            val dayStart = java.util.Calendar.getInstance().apply {
+                                set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
+                                add(java.util.Calendar.DAY_OF_YEAR, -offset)
+                            }.timeInMillis
+                            val dayEnd = dayStart + 24L * 60 * 60 * 1000
+                            if (history.any { it.reviewedAt >= dayStart && it.reviewedAt < dayEnd }) streak++ else break
+                        }
+                        val totalRemembered = history.count { it.remembered }
+                        val totalRecall = if (history.isEmpty()) 0 else totalRemembered * 100 / history.size
+                        Text("Learning analytics", style = MaterialTheme.typography.headlineSmall)
+                        Text("Insights from your saved review history", style = MaterialTheme.typography.bodyMedium)
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            SummaryCard("All-time reviews", history.size.toString(), Modifier.weight(1f))
+                            SummaryCard("Overall recall", if (history.isEmpty()) "—" else "$totalRecall%", Modifier.weight(1f))
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            SummaryCard("Active days (7d)", activeDays.toString(), Modifier.weight(1f))
+                            SummaryCard("Current streak", "$streak day(s)", Modifier.weight(1f))
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            SummaryCard("7-day reviews", reviewedThisWeek.toString(), Modifier.weight(1f))
+                            SummaryCard("7-day recall", if (reviewedThisWeek == 0) "—" else "$weeklyRecallPercent%", Modifier.weight(1f))
+                        }
+                        Text("Daily activity — last 7 days", style = MaterialTheme.typography.titleMedium)
+                        dayKeys.forEachIndexed { index, start ->
+                            val dateLabel = java.text.SimpleDateFormat("EEE, d", java.util.Locale.getDefault()).format(java.util.Date(start))
+                            val count = dailyCounts[index]
+                            val recallForDay = if (count == 0) "—" else "${dailyRemembered[index] * 100 / count}% recall"
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text(dateLabel, modifier = Modifier.width(72.dp), style = MaterialTheme.typography.bodySmall)
+                                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    LinearProgressIndicator(progress = { count.toFloat() / maxDaily }, modifier = Modifier.fillMaxWidth())
+                                    Text("$count reviews • $recallForDay", style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                        Text("Recall rate is the share of review attempts marked Remembered. It is a learning signal, not a grade.", style = MaterialTheme.typography.bodySmall)
+                        if (history.isEmpty()) Text("No review history yet. Review vocabulary to start building analytics.")
                     }
                     "Library" -> {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
