@@ -20,6 +20,7 @@
 - Debug APK, unsigned Release APK, and unsigned AAB were generated.
 - Backup v2 was merged into `main` via PR #1.
 - Physical-device runtime behavior is **not yet verified**.
+- Release workflow now validates signing-secret completeness, decodes the keystore, checks the configured alias/password before build, and verifies signed APK/AAB when signing is enabled. CI will validate this workflow change on its next run.
 
 ### Remaining release priorities
 1. **Physical-device QA:** run the full checklist in [RELEASE_QA.md](RELEASE_QA.md). Installation, navigation, database persistence, import/export/restore, scheduling, layout, and keyboard behavior require hands-on testing.
