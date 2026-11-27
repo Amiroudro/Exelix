@@ -116,6 +116,19 @@ fun ExelixApp(dao: VocabDao) {
             }
         }
     }
+    val markdownExportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/markdown")) { uri ->
+        if (uri != null) scope.launch {
+            try {
+                val snapshot = dao.observeAll().first()
+                val markdown = MarkdownVocabularyExporter.export(snapshot)
+                val stream = context.contentResolver.openOutputStream(uri) ?: throw IllegalStateException("Could not create Markdown file")
+                stream.use { it.write(markdown.toByteArray(Charsets.UTF_8)) }
+                backupFeedback = "Markdown export saved: " + snapshot.size + " vocabulary entries."
+            } catch (error: Exception) {
+                backupFeedback = "Markdown export failed: " + (error.message ?: "unknown error")
+            }
+        }
+    }
     val words by dao.observeAll().collectAsState(initial = emptyList())
     val wordCount by dao.observeCount().collectAsState(initial = 0)
     val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
@@ -438,6 +451,7 @@ fun ExelixApp(dao: VocabDao) {
                         Button(onClick = { exportLauncher.launch("Exelix-backup.json") }, modifier = Modifier.fillMaxWidth()) { Text("Export JSON backup") }
                         OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge JSON backup") }
                         OutlinedButton(onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/vnd.ms-excel")) }, modifier = Modifier.fillMaxWidth()) { Text("Import CSV / TSV with preview") }
+                        OutlinedButton(onClick = { markdownExportLauncher.launch("Exelix-vocabulary.md") }, modifier = Modifier.fillMaxWidth()) { Text("Export vocabulary as Markdown") }
                         if (backupFeedback.isNotBlank()) Text(backupFeedback, color = MaterialTheme.colorScheme.primary)
                         Text("Recent imports", style = MaterialTheme.typography.titleMedium)
                         if (importBatches.isEmpty()) Text("Import history will appear here after your first CSV, TSV, or JSON restore.")
