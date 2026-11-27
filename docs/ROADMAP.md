@@ -11,16 +11,16 @@
 - CSV/TSV importer with preview, header/delimiter handling, duplicate detection, validation, multiline/quoted fields, and limits.
 - Dashboard stats including today's activity and 7-day review/recall analytics.
 - Session-level review completion counter.
-- Dedicated Analytics screen: all-time reviews/recall, active days, streak, 7-day trend and daily activity.
+- Dedicated Analytics screen: all-time review totals/recall from unbounded DAO aggregates, streak from all review timestamps, active days and daily trend from an uncapped 7-day query.
 - Settings: persistent daily goal (5–100), System/Light/Dark theme, review-schedule explanation and local/offline privacy notes.
-- Review queue ordering updated to put unscheduled and oldest-due words first; ordering tests added and **CI build/test verified in build #53**.
+- Review queue ordering updated to put unscheduled and oldest-due words first; ordering tests added and **CI build/test verified in build #53**.\n- File import reads capped before parsing (CSV/TSV 2 MB, JSON 10 MB); JSON backups validate app format/version.\n- Manual backup warning now clarifies that only vocabulary is included (review history/preferences excluded).\n- First-release app label/version set and Android automatic backup disabled to avoid undocumented cloud backup; use explicit export.
 
 ### Next priorities
 1. **Physical-device QA:** install alongside original on a test device; verify navigation, DB persistence, imports, backup/restore, review scheduling, and layout/keyboard behavior. This remains blocked until hands-on device verification is recorded.
 2. **Review UX:** automated implementation now includes a session progress indicator, completion message, and compact five-item bottom navigation with a More hub. Further refinements should follow real-device observation (answer feedback, card layout, empty/due states).
 3. **Analytics accuracy:** automated tests now cover streak continuity when today has no activity (yesterday-active streak), activity today, gaps, no activity, and future-only timestamps. Validate local date boundaries and review-event calculations on-device; consider a simple day-by-day view after runtime QA.
 4. **Recovery fidelity:** inspect APK evidence further; implement additional features only where evidence is sufficient and scope is safe.
-5. **Release hygiene:** CI now builds and publishes an unsigned Release APK alongside Debug. Remaining release step is signing with a private production keystore, then install/upgrade verification and final release checklist.
+5. **Release hygiene:** Build #77 CI verified Debug, unsigned Release APK and unit tests. CI workflow is now expanded to produce an unsigned Release AAB as well; verify the newest run. Remaining release step is owner-managed signing, then install/upgrade verification and final release checklist.
 
 ## Deferred
 - Browser/PWA and public Pages hosting.
