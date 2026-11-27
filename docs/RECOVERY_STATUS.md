@@ -1,29 +1,42 @@
 # Exelix recovery facts and boundaries
 
 ## Original APK evidence
-- Package name: `com.depu.vocabapp`.
-- APK SHA-256: `58356d0eb5655dd52fa50cf1723487923e7fd6ada69f8a7709041c7df5899dec`.
-- Three DEX files; app-owned class and method inventories recovered from identifier tables.
-- Architecture evidence indicates Kotlin/Jetpack Compose and Room.
-- Reconstructed SQL evidence includes `vocabulary` and `import_batches` tables, their columns, and indexes.
-- Class/method names include `VocabWord`, `VocabDao`, `VocabDatabase`, `VocabRepository`, `BackupManager`, `MarkdownImporter`, `MarkdownExporter`, `XlsxImporter`, `XlsxExporter`, `FeedClient`, `FeedSyncer`, and review/feed workers.
-- Original source code and original review algorithm are not recovered. DEX identifiers and SQL strings are evidence, not decompiled method bodies.
+- Original package: `com.depu.vocabapp`.
+- Original APK SHA-256: `58356d0eb5655dd52fa50cf1723487923e7fd6ada69f8a7709041c7df5899dec`.
+- Evidence indicates Kotlin/Jetpack Compose and Room; identifiers and SQL strings were inspected.
+- Original source code and original review algorithm were not recovered. Reconstructed scheduler is approximate.
 
-## Android reconstruction (primary focus)
-- Native Gradle/Kotlin/Compose/Room project added under repository root and `app/`.
-- Reconstructed Room entities align with APK schema evidence, including vocabulary metadata and import batches.
-- App ID is `com.depu.vocabapp.rebuild`, while namespace remains `com.depu.vocabapp`, to allow side-by-side installation and avoid replacing the original app.
-- Current native screens: Home overview; searchable vocabulary library; add/edit/delete; review queue; JSON backup/restore; CSV/TSV import with preview, metadata mapping, import batches, and duplicate skipping. CSV/TSV importer and unit tests have been committed. It enforces a 2 MB text and 10,000-row cap, validates quote boundaries and extra columns, supports quoted commas, escaped quotes, and multiline fields, and previews duplicate counts. Tests and build remain unverified by CI.
-- Spaced review schedule is an approximation: Again schedules 10 minutes; remembered intervals are 1, 3, 7, 14, 30 days. Unit tests have been added for this scheduler.
-- CI exposed and corrected a missing Lifecycle Compose artifact and Java/Kotlin JVM-target mismatch. Android debug build run #25 completed successfully for commit `94418bba`, including vocabulary editing, backup/restore, and custom launcher icon; the APK artifact was downloaded, extracted, and ZIP integrity verified. Physical/emulator installation and runtime remain untested.
-- Review scheduler unit tests ran and passed in CI run #25.
-- APK is not tested on a physical device or emulator. Markdown import, history, feed, reminders, Excel support, and original UI fidelity remain outstanding. JSON backup/restore runtime behavior is not yet device-tested. CSV/TSV import changes are committed but pending CI build/test verification.
+## Native reconstruction
+- Kotlin/Compose/Room project in repository.
+- App ID `com.depu.vocabapp.rebuild` (keeps original app separate).
+- Vocabulary CRUD, search, metadata fields, local database.
+- Home overview, library, review, history, backup/transfer.
+- Review scheduler approximate: Again ~10 minutes; remembered intervals 1, 3, 7, 14, 30 days.
+- JSON backup export and merge restore with duplicate skipping.
+- CSV/TSV import with preview, duplicate counts, header/delimiter detection, quote/multiline handling, strict validation, 2 MB input and 10,000-row limits.
+- Dashboard today and 7-day review stats, including recall rate.
+- Session review counter added in build #50.
 
-## Browser reconstruction (paused)
-- Browser app remains in `index.html`, with basic vocabulary CRUD/review/import/export reconstructed.
-- User requested prioritizing Android APK and pausing browser work. Pages/validation workflows now filter web-only changes and are not intended to run for Android-only changes.
+## CI status
+- Run #49: success, commit `df683b46`, 7-day analytics.
+- Run #50: success, commit `b3bc492d`, session completion counter.
+- Build #50 APK was downloaded and archive-inspected. SHA-256: `38988f82c02e5a79ff3676c12bb6f9ef80fbf355b1b28bb59ae4cb9113966725`.
+- CI validation is not physical device testing. Runtime, install, accessibility, and data flow still require device verification.
 
-## Safety/data handling
-- Never uninstall or overwrite the original APK as part of reconstruction testing.
-- Do not access original private app data. The reconstruction has its own database and app identity.
-- Mark features reconstructed or untested until a real build and runtime test confirms them.
+## Pending validation
+- Install reconstruction beside original without replacing original.
+- Test dashboard numbers and date-boundary behavior.
+- Add/edit/delete/search and Bangla text display.
+- Review Again/Remembered schedule and history records.
+- Import representative CSV/TSV files, including duplicates and quoted/multiline fields.
+- Export backup, restore into a fresh reconstruction install, and verify content.
+- Verify navigation, keyboard, scrolling, and screen-size layout.
+- Record issues and fix them before release builds.
+
+## Browser reconstruction
+- Web/PWA work is paused by request.
+
+## Safety and data handling
+- Do not uninstall or overwrite the original app during reconstruction tests.
+- Do not access the original app's private data.
+- Clearly label reconstructed behavior and unverified claims.
