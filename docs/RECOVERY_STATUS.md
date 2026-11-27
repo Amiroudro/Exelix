@@ -13,7 +13,7 @@
 - Native Gradle/Kotlin/Compose/Room project added under repository root and `app/`.
 - Reconstructed Room entities align with APK schema evidence, including vocabulary metadata and import batches.
 - App ID is `com.depu.vocabapp.rebuild`, while namespace remains `com.depu.vocabapp`, to allow side-by-side installation and avoid replacing the original app.
-- Current native screens: Home overview; searchable vocabulary library; add/edit/delete; review queue; JSON backup/restore; CSV/TSV import with preview, metadata mapping, import batches, and duplicate skipping. CSV/TSV importer and unit tests have been committed, but this new importer has not yet been CI-verified.
+- Current native screens: Home overview; searchable vocabulary library; add/edit/delete; review queue; JSON backup/restore; CSV/TSV import with preview, metadata mapping, import batches, and duplicate skipping. CSV/TSV importer and unit tests have been committed. The importer enforces a 2 MB text and 10,000-row cap, validates quote boundaries, and previews duplicate counts. It remains unverified by CI.
 - Spaced review schedule is an approximation: Again schedules 10 minutes; remembered intervals are 1, 3, 7, 14, 30 days. Unit tests have been added for this scheduler.
 - CI exposed and corrected a missing Lifecycle Compose artifact and Java/Kotlin JVM-target mismatch. Android debug build run #25 completed successfully for commit `94418bba`, including vocabulary editing, backup/restore, and custom launcher icon; the APK artifact was downloaded, extracted, and ZIP integrity verified. Physical/emulator installation and runtime remain untested.
 - Review scheduler unit tests ran and passed in CI run #25.
