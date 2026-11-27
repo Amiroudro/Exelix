@@ -117,7 +117,7 @@ fun ExelixApp(dao: VocabDao) {
     var tags by remember { mutableStateOf("") }
     var feedback by remember { mutableStateOf("") }
     var sessionReviewed by remember { mutableIntStateOf(0) }
-    val due = words.filter { it.nextReviewDate == null || it.nextReviewDate <= System.currentTimeMillis() }
+    val due = ReviewQueue.dueFirst(words, System.currentTimeMillis())
     val filtered = words.filter { listOf(it.word, it.banglaMeaning, it.englishDefinition, it.partOfSpeech, it.tags, it.synonym.orEmpty(), it.antonym.orEmpty(), it.collocation.orEmpty(), it.examSourceRef.orEmpty()).any { value -> value.contains(search, ignoreCase = true) } }
 
     MaterialTheme(colorScheme = lightColorScheme(primary = Color(0xFF176B48), secondary = Color(0xFFD62828))) {
