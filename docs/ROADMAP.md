@@ -11,13 +11,13 @@
 - Dashboard stats and Analytics screen (all-time aggregates, recall, streak, active days, daily trend).
 - Settings: persistent daily goal (5–100), System/Light/Dark theme, review-schedule explanation and local/offline privacy notes.
 - JSON backup format v2: vocabulary, complete review-event history, daily goal, and theme.
-- Markdown vocabulary export and matching importer: readable sorted entries with full metadata; importer supports preview and merge. Newly reconstructed portable format, not original-format verified. Unit tests added; CI still needs verification.
+- Markdown vocabulary export and matching importer: readable sorted entries with full metadata; importer supports preview and merge. Newly reconstructed portable format, not original-format verified. Unit tests added and CI passed in run #111.
 - Restore merges vocabulary, remaps imported review events to local word IDs, avoids duplicate history events, and retains Version 1 vocabulary-only backup compatibility.
 - Backup data and preferences are bounded and validated.
 - Unit tests cover backup snapshot round-trip, v1 compatibility, settings sanitization, unsupported versions, and other core logic.
 
 ### Verified by CI and device
-- **Build 103 succeeded** on 2026-11-27: Android variants and tests passed.
+- **Build 111 succeeded** on 2026-11-27: Android variants and unit tests passed for the Markdown import/export additions. Build 103 remains the earlier backup-v2 baseline.
 - Debug APK, unsigned Release APK, and unsigned AAB were generated.
 - Backup v2 was merged into `main` via PR #1.
 - **Owner reports physical-device testing completed with all tested items OK.** Device/build/test details have not been logged; see [RELEASE_QA.md](RELEASE_QA.md).
