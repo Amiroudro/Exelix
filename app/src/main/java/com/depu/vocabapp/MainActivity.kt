@@ -84,6 +84,10 @@ fun ExelixApp(dao: VocabDao) {
     val words by dao.observeAll().collectAsState(initial = emptyList())
     val wordCount by dao.observeCount().collectAsState(initial = 0)
     val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
+    val history by dao.observeHistory().collectAsState(initial = emptyList())
+    val todayStart = remember { java.util.Calendar.getInstance().apply { set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }.timeInMillis }
+    val reviewedToday by dao.observeReviewCountSince(todayStart).collectAsState(initial = 0)
+    val rememberedToday by dao.observeRememberedCountSince(todayStart).collectAsState(initial = 0)
     var tab by remember { mutableStateOf("Library") }
     var showAdd by remember { mutableStateOf(false) }
     var editingId by remember { mutableStateOf<Long?>(null) }
@@ -107,7 +111,7 @@ fun ExelixApp(dao: VocabDao) {
             topBar = { TopAppBar(title = { Column { Text("Exelix"); Text("Vocabulary, built for steady progress", style = MaterialTheme.typography.bodySmall) } }) },
             bottomBar = {
                 NavigationBar {
-                    listOf("Home", "Library", "Review", "Backup").forEach { name ->
+                    listOf("Home", "Library", "Review", "History", "Backup").forEach { name ->
                         NavigationBarItem(selected = tab == name, onClick = { tab = name }, label = { Text(name) }, icon = { Text(when(name) { "Home" -> "⌂"; "Library" -> "▤"; "Review" -> "✓"; else -> "⇧" }) })
                     }
                 }
@@ -124,6 +128,10 @@ fun ExelixApp(dao: VocabDao) {
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             SummaryCard("Mastered", masteredCount.toString(), Modifier.weight(1f))
                             SummaryCard("Learning", words.count { it.masteryStatus == "Learning" }.toString(), Modifier.weight(1f))
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            SummaryCard("Reviewed today", reviewedToday.toString(), Modifier.weight(1f))
+                            SummaryCard("Remembered", rememberedToday.toString(), Modifier.weight(1f))
                         }
                         Text("Offline-first. Your vocabulary is stored in the app's local database.")
                     }
@@ -188,18 +196,36 @@ fun ExelixApp(dao: VocabDao) {
                                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                             Button(onClick = {
                                                 scope.launch {
+                                                    dao.insertHistory(StudyHistoryEvent(vocabularyId = current.id, word = current.word, remembered = false))
                                                     val result = ReviewScheduler.again()
                                                     dao.update(current.copy(correctStreak = 0, incorrectStreak = current.incorrectStreak + 1, masteryStatus = result.status, nextReviewDate = result.nextReviewAt))
                                                 }
                                             }) { Text("Again") }
                                             Button(onClick = {
                                                 scope.launch {
+                                                    dao.insertHistory(StudyHistoryEvent(vocabularyId = current.id, word = current.word, remembered = true))
                                                     val result = ReviewScheduler.remembered(current.correctStreak)
                                                     dao.update(current.copy(correctStreak = result.streak, incorrectStreak = 0, masteryStatus = result.status, nextReviewDate = result.nextReviewAt))
                                                 }
                                             }) { Text("Remembered") }
                                         }
                                     } else Button(onClick = { revealed = true }) { Text("Reveal answer") }
+                                }
+                            }
+                        }
+                    }
+                    "History" -> {
+                        Text("Study history", style = MaterialTheme.typography.headlineSmall)
+                        Text("Today: $reviewedToday reviews • $rememberedToday remembered", style = MaterialTheme.typography.bodyMedium)
+                        if (history.isEmpty()) Text("Your review activity will appear here after your first review.")
+                        else LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(history, key = { it.eventId }) { event ->
+                                Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
+                                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        Text(event.word, style = MaterialTheme.typography.titleMedium)
+                                        Text(if (event.remembered) "Remembered" else "Again", color = if (event.remembered) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary)
+                                        Text(java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT).format(java.util.Date(event.reviewedAt)), style = MaterialTheme.typography.labelSmall)
+                                    }
                                 }
                             }
                         }
