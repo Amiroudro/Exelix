@@ -58,6 +58,14 @@
 - Run #99 subsequently passed tests for local calendar helpers. Run #100/#101 include daily rollover integration and final branding and are pending at documentation time.
 - Optional release signing is wired to repository secrets, but no production signing secrets are configured.
 
+## Final sprint build #101 (latest verified)
+- Run #101, commit `7619e5bb285f2e7877d4281ccec91506f16419cb`: CI success. `testDebugUnitTest assembleDebug assembleRelease bundleRelease` all completed successfully; unit tests passed.
+- Debug APK: 16,613,727 bytes; SHA-256 `4a178c76ef62852b25f6dd786de3b41ee3ac79a54152fa56c5fdececcf5fb113`; ZIP integrity passed.
+- Unsigned Release APK: 10,854,738 bytes; SHA-256 `52292a72a4a2f6d380f7d1dc0138591988a3c4fe13c91de02e5a6a59cf82a0de`; ZIP integrity passed.
+- Unsigned Release AAB: 10,525,451 bytes; SHA-256 `4bd3902bb2531f84283e433eaf2f0a6a7ef5860e8727908a58c162f01672280c`; ZIP integrity passed.
+- Includes calendar-aware analytics rollover, all-time aggregate metrics, review scheduler tests, scrollable Home/More/Backup pages, final app footer branding, file import limits, backup format validation, and optional private-key CI signing.
+- No release signing secrets were configured, so Release APK/AAB are unsigned. No Android SDK analysis tools, emulator, or physical device were available in this environment; only CI build/test and archive integrity are verified.
+
 ## Pending validation
 - Install reconstruction beside original without replacing original.
 - Test dashboard numbers and date-boundary behavior.
