@@ -108,13 +108,20 @@ fun ExelixApp(dao: VocabDao) {
     val allRememberedCount by dao.observeAllRememberedCount().collectAsState(initial = 0)
     val allReviewTimestamps by dao.observeReviewTimestamps().collectAsState(initial = emptyList())
     val importBatches by dao.observeBatches().collectAsState(initial = emptyList())
-    val todayStart = remember { java.util.Calendar.getInstance().apply { set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }.timeInMillis }
+    var todayStart by remember { mutableLongStateOf(StudyCalendar.startOfDay(System.currentTimeMillis())) }
+    var weekStart by remember { mutableLongStateOf(StudyCalendar.sevenDayStart(System.currentTimeMillis())) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(5 * 60_000L)
+            val newTodayStart = StudyCalendar.startOfDay(System.currentTimeMillis())
+            if (newTodayStart != todayStart) {
+                todayStart = newTodayStart
+                weekStart = StudyCalendar.sevenDayStart(System.currentTimeMillis())
+            }
+        }
+    }
     val reviewedToday by dao.observeReviewCountSince(todayStart).collectAsState(initial = 0)
     val rememberedToday by dao.observeRememberedCountSince(todayStart).collectAsState(initial = 0)
-    val weekStart = remember { java.util.Calendar.getInstance().apply {
-        set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0)
-        add(java.util.Calendar.DAY_OF_YEAR, -6)
-    }.timeInMillis }
     val reviewedThisWeek by dao.observeReviewCountSince(weekStart).collectAsState(initial = 0)
     val rememberedThisWeek by dao.observeRememberedCountSince(weekStart).collectAsState(initial = 0)
     val analyticsHistory by dao.observeHistorySince(weekStart).collectAsState(initial = emptyList())
