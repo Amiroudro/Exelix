@@ -18,11 +18,11 @@ Exelix is a personal vocabulary-learning app. **Android-native APK reconstructio
 - CSV/TSV import with preview, duplicate detection, delimiter/header mapping, quoted and multiline fields, limits, and validation.
 - JSON backup format v2 includes vocabulary, review history, daily goal, and theme. Restore merges vocabulary, maps history to local IDs, skips duplicates, and validates data.
 - Version 1 vocabulary-only JSON backups remain supported.
-- Markdown vocabulary export/import for the reconstruction's own portable format; Markdown import includes preview and duplicate-safe merge (not confirmed original-format compatible).
+- Markdown vocabulary export/import for the reconstruction's own portable format; Markdown import includes preview and duplicate-safe merge (CI build/tests passed in run #111; not confirmed original-format compatible).
 
 ## Build and verification
 - GitHub Actions workflow: `.github/workflows/android-build.yml`.
-- **Build 103 succeeded**: Android build/tests passed; Debug APK, unsigned Release APK, and unsigned AAB generated.
+- **Build 111 succeeded** (2026-11-27): Android build and unit tests passed for the Markdown importer/exporter feature set; Debug APK, unsigned Release APK, and unsigned AAB generated. Build 103 remains the earlier backup-v2 baseline.
 - Backup v2 changes merged into main via PR #1.
 - **Owner-confirmed real-device testing: all tested functionality reported OK** (exact device/build/test evidence not yet recorded).
 - Release signing secrets are not configured, so release outputs are unsigned.
