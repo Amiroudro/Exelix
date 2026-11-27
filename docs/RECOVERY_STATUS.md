@@ -25,6 +25,14 @@
 - Build #50 APK was downloaded and archive-inspected. SHA-256: `38988f82c02e5a79ff3676c12bb6f9ef80fbf355b1b28bb59ae4cb9113966725`.
 - CI validation is not physical device testing. Runtime, install, accessibility, and data flow still require device verification.
 
+## Latest verified reconstruction (build #76)
+- CI run #76, commit `2e2e4abb673e0777af6f1e942e5250f13f3f7268`: success (`testDebugUnitTest assembleDebug`).
+- Unit tests passed in CI; debug APK produced and archive integrity checked after download.
+- APK: 16,597,359 bytes; SHA-256 `cc129a1e1dc43a9f92a711503040965732f6decd02a39fd4fab906e55a2e7732`.
+- Build #76 includes: review-session progress indicator/completion message; compact bottom navigation (Home, Library, Review, History, More); More hub for Analytics, Backup, Settings; More remains selected on secondary pages; calendar-aware study streak that continues from yesterday if today has not been studied yet; tests for streak behavior.
+- APK ZIP integrity: passed (`unzip -t` reported no errors).
+- Physical-device installation and runtime QA remain unperformed.
+
 ## Pending validation
 - Install reconstruction beside original without replacing original.
 - Test dashboard numbers and date-boundary behavior.
