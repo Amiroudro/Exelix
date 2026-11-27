@@ -61,14 +61,8 @@ fun ExelixApp(dao: VocabDao) {
                 val raw = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
                     ?: throw IllegalStateException("Could not read selected file")
                 val restored = BackupFormat.decode(raw)
-                val batchId = dao.insertBatch(ImportBatch(fileName = "JSON backup", wordCount = restored.size))
-                var added = 0
-                var duplicates = 0
-                restored.forEach { item ->
-                    val result = dao.insertIgnore(item.copy(importBatchId = batchId))
-                    if (result == -1L) duplicates++ else added++
-                }
-                backupFeedback = "Restore finished: ${added} added, ${duplicates} duplicates skipped."
+                val result = dao.mergeImport("JSON backup", restored)
+                backupFeedback = "Restore finished: ${result.added} added, ${result.duplicates} duplicates skipped."
             } catch (error: Exception) {
                 backupFeedback = "Restore failed: ${error.message ?: "invalid backup"}"
             }
@@ -302,14 +296,8 @@ fun ExelixApp(dao: VocabDao) {
         confirmButton = {
             Button(onClick = {
                 scope.launch {
-                    val batch = dao.insertBatch(ImportBatch(fileName = "CSV/TSV import", wordCount = pendingImport.size))
-                    var added = 0
-                    var duplicates = 0
-                    pendingImport.forEach { entry ->
-                        val result = dao.insertIgnore(entry.copy(importBatchId = batch))
-                        if (result == -1L) duplicates++ else added++
-                    }
-                    backupFeedback = "Import complete: $added added, $duplicates duplicates skipped."
+                    val result = dao.mergeImport("CSV/TSV import", pendingImport)
+                    backupFeedback = "Import complete: ${result.added} added, ${result.duplicates} duplicates skipped."
                     pendingImport = emptyList()
                     showImportPreview = false
                 }
