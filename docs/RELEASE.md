@@ -17,7 +17,7 @@ Unsigned artifacts are build outputs, not installable production releases. A pro
 ## Signing (owner-controlled)
 1. Create a private release keystore locally using Android Studio's Generate Signed Bundle/APK flow or the Android SDK `keytool`.
 2. Keep the keystore, passwords, and recovery copies private. Do not commit them or paste them into chat.
-3. Use Android Studio's signing wizard to sign the Release APK/AAB, or configure CI signing only with repository secrets and a protected release workflow.
+3. To enable CI signing, add these repository Actions secrets (Settings → Secrets and variables → Actions): `EXELIX_RELEASE_KEYSTORE_BASE64`, `EXELIX_RELEASE_STORE_PASSWORD`, `EXELIX_RELEASE_KEY_ALIAS`, and `EXELIX_RELEASE_KEY_PASSWORD`. The workflow decodes the keystore into the temporary runner directory, signs Release APK/AAB, and runs signature verification. Without these secrets, CI intentionally produces unsigned artifacts.
 4. Keep the signing key and passwords backed up securely; losing the key can prevent updates to the same app identity.
 5. Verify the signed artifact's signature, version, package ID, and hash before sharing.
 
