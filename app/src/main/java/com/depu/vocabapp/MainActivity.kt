@@ -315,8 +315,14 @@ fun ExelixApp(dao: VocabDao) {
                         Text("Review queue", style = MaterialTheme.typography.headlineSmall)
                         Text("${due.size} due now", style = MaterialTheme.typography.labelLarge)
                         Text("Completed this session: $sessionReviewed", style = MaterialTheme.typography.bodyMedium)
+                        val sessionTotal = (sessionReviewed + due.size).coerceAtLeast(1)
+                        LinearProgressIndicator(
+                            progress = { (sessionReviewed.toFloat() / sessionTotal).coerceIn(0f, 1f) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text("Session progress: $sessionReviewed / $sessionTotal", style = MaterialTheme.typography.labelSmall)
                         val current = due.firstOrNull()
-                        if (current == null) Text("Nothing due right now. Nice work.")
+                        if (current == null) Text(if (sessionReviewed > 0) "Session complete. Great work!" else "Nothing due right now. Nice work.")
                         else {
                             var revealed by remember(current.id) { mutableStateOf(false) }
                             Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp)) {
