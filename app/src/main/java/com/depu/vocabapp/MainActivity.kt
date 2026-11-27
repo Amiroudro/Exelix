@@ -317,7 +317,20 @@ fun ExelixApp(dao: VocabDao) {
         },
         dismissButton = { TextButton(onClick = { showImportPreview = false }) { Text("Cancel") } }
     )
-    if (pendingDelete != null) AlertDialog(\n        onDismissRequest = { pendingDelete = null },\n        title = { Text("Delete vocabulary?") },\n        text = { Text("Delete \\"${pendingDelete?.word}\\" from your library? This cannot be undone.") },\n        confirmButton = {\n            Button(onClick = { val target = pendingDelete; pendingDelete = null; if (target != null) scope.launch { dao.delete(target) } }) { Text("Delete") }\n        },\n        dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("Cancel") } }\n    )\n    if (showAdd) AlertDialog(
+    if (pendingDelete != null) AlertDialog(
+        onDismissRequest = { pendingDelete = null },
+        title = { Text("Delete vocabulary?") },
+        text = { Text("Delete \"${pendingDelete?.word}\" from your library? This cannot be undone.") },
+        confirmButton = {
+            Button(onClick = {
+                val target = pendingDelete
+                pendingDelete = null
+                if (target != null) scope.launch { dao.delete(target) }
+            }) { Text("Delete") }
+        },
+        dismissButton = { TextButton(onClick = { pendingDelete = null }) { Text("Cancel") } }
+    )
+    if (showAdd) AlertDialog(
             onDismissRequest = { showAdd = false },
             title = { Text(if (editingId == null) "Add vocabulary" else "Edit vocabulary") },
             text = {
