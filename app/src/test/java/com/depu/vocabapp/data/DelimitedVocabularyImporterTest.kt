@@ -41,4 +41,12 @@ a,mis"quoted""") ; fail("Expected parse error") }
         try { DelimitedVocabularyImporter.parse("Word,Meaning\na,\"bad") ; fail("Expected parse error") }
         catch (_: IllegalArgumentException) { }
     }
+    @Test fun rejectsExtraNonblankColumns() {
+        try { DelimitedVocabularyImporter.parse("Word,Meaning\na,one,unexpected"); fail("Expected column mismatch") }
+        catch (_: IllegalArgumentException) { }
+    }
+    @Test fun allowsBlankTrailingColumns() {
+        val parsed = DelimitedVocabularyImporter.parse("Word,Meaning\na,one,")
+        assertEquals(1, parsed.size)
+    }
 }
