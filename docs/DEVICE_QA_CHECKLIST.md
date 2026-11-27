@@ -10,7 +10,7 @@ Use the reconstruction app only for testing. Keep the original app installed and
 
 ## Basic UI and persistence
 - [ ] App launches without crash.
-- [ ] Home, Library, Review, History, and Backup tabs switch correctly.
+- [ ] Home, Library, Review, History, Analytics, Backup, and Settings tabs switch correctly.
 - [ ] Add a test word, close/reopen app, and verify it persists.
 - [ ] Edit test word and confirm changes.
 - [ ] Search for word, Bangla meaning, and tags.
@@ -31,6 +31,15 @@ Use the reconstruction app only for testing. Keep the original app installed and
 - [ ] Verify malformed or oversized files produce understandable errors.
 - [ ] Export JSON backup and verify Android reports the file saved.
 - [ ] Restore into a separate/fresh reconstruction install or test environment; verify duplicates are skipped and data is preserved.
+
+## Analytics / Settings
+- [ ] All-time review and recall values match review history.
+- [ ] Active days and streak are correct for test dates.
+- [ ] Daily activity chart matches review events.
+- [ ] Set daily goal and verify Home progress updates.
+- [ ] Daily goal persists after closing/reopening.
+- [ ] Switch System/Light/Dark themes and verify persistence.
+- [ ] Review-schedule explanation is accurate and clearly labels approximate intervals.
 
 ## Dashboard / analytics
 - [ ] Word count and due count match test data.
