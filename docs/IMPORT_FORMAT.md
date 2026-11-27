@@ -29,7 +29,8 @@ benevolent,দয়ালু,Kind and generous,adjective,"A benevolent person h
 
 ## Import safety
 
-- Review the preview before confirming.
+- Review the preview before confirming; it reports existing-library duplicates and duplicates within the selected file.
+- Import text is capped at 2 MB and 10,000 vocabulary rows to avoid excessive memory use.
 - Existing normalized words are skipped; the importer does not overwrite your entries.
 - Imported records are assigned to an import batch.
 - CSV quotation supports commas inside quoted cells and escaped double quotes.
