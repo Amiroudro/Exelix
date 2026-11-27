@@ -30,7 +30,7 @@ Exelix is a personal vocabulary-learning app. **Android-native APK reconstructio
 - See [release/device QA checklist](docs/RELEASE_QA.md), [repeatable verification matrix](docs/RECONSTRUCTION_VERIFICATION_MATRIX.md), and [roadmap](docs/ROADMAP.md).
 
 ## Original APK parity
-- Evidence-based gap inventory: [APK parity audit](docs/APK_PARITY_AUDIT.md). APK identifier evidence suggests XLSX import/export, Markdown import/export, feed/news sync, batch/tag operations, and reminder workers require further verification or reconstruction. Exact behavior is not yet confirmed.
+- Evidence-based gap inventory: [APK parity audit](docs/APK_PARITY_AUDIT.md). APK identifier evidence suggests XLSX import/export, original Markdown compatibility, feed/news sync, batch/tag operations, and reminder workers require further verification or reconstruction. A reconstruction-format Markdown importer/exporter is implemented; exact original behavior is not yet confirmed.
 
 ## Browser edition (paused)
 `index.html` remains in the repository but is not the current focus.
