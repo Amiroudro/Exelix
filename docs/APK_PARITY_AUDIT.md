@@ -13,7 +13,7 @@ Evidence retained from Phase 5 is an APK/DEX inventory, app-owned class/method i
 | `addWord`, `updateWord`, `deleteWord` | Implemented | Owner reports device testing OK. |
 | `previewImport`, `commitImport` | CSV/TSV import implemented | Original formats and UI parity need evidence. |
 | `exportBackup`, `restoreBackup`, BackupManager | JSON v1/v2 reconstruction implemented | Current v2 includes words, review history, goal, theme; exact original backup format unknown. |
-| `exportToMarkdown`, `importMarkdown`, MarkdownImporter/Exporter | Not confirmed in native reconstruction | Add or verify dedicated Markdown import/export. |
+| `exportToMarkdown`, `importMarkdown`, MarkdownImporter/Exporter | Markdown vocabulary export added; import not implemented | Export is a newly designed human-readable format and is not confirmed compatible with original. Markdown import remains open.
 | `exportToXlsx`, `importXlsx`, XlsxImporter/Exporter | Not implemented/confirmed | Spreadsheet import/export is a notable parity gap. |
 | Tag handling and batch deletion method identifiers | Not fully verified | Audit current UI/DAO for bulk delete and tag operations. |
 | Due-review queries, DueReviewWorker | Review queue + approximate scheduler implemented | Worker/reminder semantics not recovered or implemented/confirmed. |
@@ -23,7 +23,7 @@ Evidence retained from Phase 5 is an APK/DEX inventory, app-owned class/method i
 
 ## High-priority parity work
 1. **Spreadsheet support (XLSX):** determine expected columns and implement import/export only after reviewing original strings/schema or user-provided behavior screenshots.
-2. **Markdown import/export:** verify native app has equivalents; add format-compatible routines.
+2. **Markdown import/export:** Markdown export now exists in reconstruction; verify original format and add safe preview-based Markdown import.
 3. **Feeds/news synchronization:** identify expected source configuration and privacy/network behavior; do not invent endpoints.
 4. **Batch actions and tags:** verify current native app and original evidence for bulk operations.
 5. **Review reminders/workers:** determine notification permissions, reminder timing, and worker conditions from evidence.
