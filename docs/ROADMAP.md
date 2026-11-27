@@ -2,25 +2,31 @@
 
 ## Primary focus: Android reconstruction and validation
 
-### Implemented (CI-built)
+### Implemented in the reconstruction (CI-built)
 - Native Kotlin/Jetpack Compose shell and Room offline database.
 - Vocabulary add/edit/delete/search and metadata fields.
 - Review queue and approximate reconstructed scheduler.
 - Review history.
-- JSON backup export and merge restore with duplicate skipping.
 - CSV/TSV importer with preview, header/delimiter handling, duplicate detection, validation, multiline/quoted fields, and limits.
-- Dashboard stats including today's activity and 7-day review/recall analytics.
-- Session-level review completion counter.
-- Dedicated Analytics screen: all-time review totals/recall from unbounded DAO aggregates, streak from all review timestamps, active days and daily trend from an uncapped 7-day query.
+- Dashboard stats and Analytics screen (all-time aggregates, recall, streak, active days, daily trend).
 - Settings: persistent daily goal (5–100), System/Light/Dark theme, review-schedule explanation and local/offline privacy notes.
-- Review queue ordering updated to put unscheduled and oldest-due words first; ordering tests added and **CI build/test verified in build #53**.\n- File import reads capped before parsing (CSV/TSV 2 MB, JSON 10 MB); JSON backups validate app format/version.\n- Manual backup warning now clarifies that only vocabulary is included (review history/preferences excluded).\n- First-release app label/version set and Android automatic backup disabled to avoid undocumented cloud backup; use explicit export.
+- JSON backup format v2: vocabulary, complete review-event history, daily goal, and theme.
+- Restore merges vocabulary, remaps imported review events to local word IDs, avoids duplicate history events, and retains Version 1 vocabulary-only backup compatibility.
+- Backup data and preferences are bounded and validated.
+- Unit tests cover backup snapshot round-trip, v1 compatibility, settings sanitization, unsupported versions, and other core logic.
 
-### Next priorities
-1. **Physical-device QA:** install alongside original on a test device; verify navigation, DB persistence, imports, backup/restore, review scheduling, and layout/keyboard behavior. This remains blocked until hands-on device verification is recorded.
-2. **Review UX:** automated implementation now includes a session progress indicator, completion message, and compact five-item bottom navigation with a More hub. Further refinements should follow real-device observation (answer feedback, card layout, empty/due states).
-3. **Analytics accuracy:** automated tests now cover streak continuity when today has no activity (yesterday-active streak), activity today, gaps, no activity, and future-only timestamps. Validate local date boundaries and review-event calculations on-device; consider a simple day-by-day view after runtime QA.
-4. **Recovery fidelity:** inspect APK evidence further; implement additional features only where evidence is sufficient and scope is safe.
-5. **Release hygiene:** Build #101 CI verified Debug, unsigned Release APK, unsigned AAB, and all unit tests. Optional owner-secret signing is wired and signature checks are enabled when signing is configured. Production signing secrets are not configured; physical device install/upgrade QA and permanent package-ID decision remain.
+### Verified by CI
+- **Build 103 succeeded** on 2026-11-27: Android variants and tests passed.
+- Debug APK, unsigned Release APK, and unsigned AAB were generated.
+- Backup v2 was merged into `main` via PR #1.
+- Physical-device runtime behavior is **not yet verified**.
+
+### Remaining release priorities
+1. **Physical-device QA:** run the full checklist in [RELEASE_QA.md](RELEASE_QA.md). Installation, navigation, database persistence, import/export/restore, scheduling, layout, and keyboard behavior require hands-on testing.
+2. **Original-app parity audit:** compare reconstructed screens/features against original APK evidence; mark verified behavior and gaps. Do not claim parity without evidence.
+3. **Permanent application ID:** current reconstruction uses `com.depu.vocabapp.rebuild`; decide permanent ID before public release. Original app package is `com.depu.vocabapp`; original signing certificate/source are not recovered.
+4. **Release signing:** configure a secure owner-controlled keystore and GitHub secrets; generate and verify signed APK/AAB. Signing secrets are not currently configured.
+5. **Release readiness:** versioning, privacy disclosures, release notes, and final device regression.
 
 ## Deferred
 - Browser/PWA and public Pages hosting.
@@ -28,12 +34,3 @@
 
 ## Evidence rule
 Original APK is evidence, not recovered source. Distinguish implemented, CI-built, device-tested, and original-app-confirmed behavior. Never claim parity without evidence.
-
-## Backup v2 completion work (PR branch)
-
-- JSON backup format v2 adds complete review-event history plus daily goal and theme preferences.
-- Restore merges vocabulary without overwriting existing entries, remaps history to local vocabulary IDs, and avoids duplicate review events by word/remembered/timestamp tuple.
-- Version 1 vocabulary-only JSON backups remain supported.
-- Settings are validated and bounded; restore writes selected preferences locally.
-- Automated unit tests cover v2 snapshot round-trip, v1 compatibility, settings sanitization, and unsupported versions.
-- Awaiting CI verification and physical-device QA; not yet a verified release build.
