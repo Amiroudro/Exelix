@@ -10,6 +10,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -112,7 +118,19 @@ fun ExelixApp(dao: VocabDao) {
             bottomBar = {
                 NavigationBar {
                     listOf("Home", "Library", "Review", "History", "Backup").forEach { name ->
-                        NavigationBarItem(selected = tab == name, onClick = { tab = name }, label = { Text(name) }, icon = { Text(when(name) { "Home" -> "⌂"; "Library" -> "▤"; "Review" -> "✓"; else -> "⇧" }) })
+                        val icon = when (name) {
+                            "Home" -> Icons.Default.Home
+                            "Library" -> Icons.Default.Book
+                            "Review" -> Icons.Default.Check
+                            "History" -> Icons.Default.History
+                            else -> Icons.Default.Save
+                        }
+                        NavigationBarItem(
+                            selected = tab == name,
+                            onClick = { tab = name },
+                            label = { Text(name) },
+                            icon = { Icon(icon, contentDescription = name) }
+                        )
                     }
                 }
             }
