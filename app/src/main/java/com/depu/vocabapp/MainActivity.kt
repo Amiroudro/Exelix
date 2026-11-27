@@ -312,7 +312,7 @@ fun ExelixApp(dao: VocabDao) {
                                 Text("Export a backup from Backup before moving devices or reinstalling.", style = MaterialTheme.typography.bodySmall)
                             }
                         }
-                        Text("Exelix • Native rebuild", style = MaterialTheme.typography.labelSmall)
+                        Text("Exelix • 1.0.0", style = MaterialTheme.typography.labelSmall)
                     }
                     "Library" -> {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
