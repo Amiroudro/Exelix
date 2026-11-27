@@ -5,6 +5,18 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VocabDao {
+    @Insert
+    suspend fun insertHistory(event: StudyHistoryEvent): Long
+
+    @Query("SELECT * FROM study_history ORDER BY reviewedAt DESC LIMIT 200")
+    fun observeHistory(): Flow<List<StudyHistoryEvent>>
+
+    @Query("SELECT COUNT(*) FROM study_history WHERE reviewedAt >= :since")
+    fun observeReviewCountSince(since: Long): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM study_history WHERE remembered = 1 AND reviewedAt >= :since")
+    fun observeRememberedCountSince(since: Long): Flow<Int>
+
     @Query("SELECT * FROM vocabulary ORDER BY word COLLATE NOCASE")
     fun observeAll(): Flow<List<VocabWord>>
 
