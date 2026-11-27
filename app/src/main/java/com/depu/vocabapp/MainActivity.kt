@@ -138,7 +138,7 @@ fun ExelixApp(dao: VocabDao) {
                             else -> Icons.Default.MoreHoriz
                         }
                         NavigationBarItem(
-                            selected = tab == name,
+                            selected = tab == name || (name == "More" && tab in listOf("Analytics", "Backup", "Settings")),
                             onClick = { tab = name },
                             label = { Text(name) },
                             icon = { Icon(icon, contentDescription = name) }
