@@ -34,6 +34,14 @@
 - Physical-device installation and runtime QA remain unperformed.
 - CI workflow was extended after build #76 to assemble the Release variant and upload it as a separate unsigned-release artifact; the new workflow run is pending.
 
+## Release-pipeline verification (build #77)
+- CI run #77, commit `b7bbd81927579dc2f991d3bd32565c3ea1609ca2`: success (`testDebugUnitTest assembleDebug assembleRelease`).
+- CI tests passed; both Debug and unsigned Release APKs were produced.
+- Debug APK: 16,597,496 bytes; SHA-256 `c29509cbc1e8c9f781ed79f58f44ba82992faf32f7a12e57f28b3744f44463f0`; archive integrity passed.
+- Unsigned Release APK: 10,854,746 bytes; SHA-256 `38b03062888831a74c0e46e1f241582d7d264c0310a59f16ee4505434629d471`; archive integrity passed.
+- These are unsigned release artifacts. Signing with a user-owned private key is still required for distribution/installation as a production release.
+- Subsequent commits fix analytics truncation, cap imported file reads, validate backup format/version, clarify backup exclusions, update app label/version, and add unsigned AAB output. Their CI run is pending; do not treat these changes as verified until that run passes.
+
 ## Pending validation
 - Install reconstruction beside original without replacing original.
 - Test dashboard numbers and date-boundary behavior.
