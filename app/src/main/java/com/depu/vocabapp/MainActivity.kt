@@ -6,6 +6,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -318,7 +320,7 @@ fun ExelixApp(dao: VocabDao) {
             onDismissRequest = { showAdd = false },
             title = { Text(if (editingId == null) "Add vocabulary" else "Edit vocabulary") },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.heightIn(max = 520.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.heightIn(max = 520.dp).verticalScroll(rememberScrollState())) {
                     OutlinedTextField(word, { word = it }, label = { Text("Word *") }, singleLine = true)
                     OutlinedTextField(meaning, { meaning = it }, label = { Text("Bangla meaning") })
                     OutlinedTextField(definition, { definition = it }, label = { Text("English definition") })
