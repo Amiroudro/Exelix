@@ -19,6 +19,18 @@ interface VocabDao {
     @Query("SELECT COUNT(*) FROM study_history WHERE remembered = 1 AND reviewedAt >= :since")
     fun observeRememberedCountSince(since: Long): Flow<Int>
 
+    @Query("SELECT COUNT(*) FROM study_history")
+    fun observeAllReviewCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM study_history WHERE remembered = 1")
+    fun observeAllRememberedCount(): Flow<Int>
+
+    @Query("SELECT reviewedAt FROM study_history ORDER BY reviewedAt DESC")
+    fun observeReviewTimestamps(): Flow<List<Long>>
+
+    @Query("SELECT * FROM study_history WHERE reviewedAt >= :since ORDER BY reviewedAt DESC")
+    fun observeHistorySince(since: Long): Flow<List<StudyHistoryEvent>>
+
     @Query("SELECT * FROM vocabulary ORDER BY word COLLATE NOCASE")
     fun observeAll(): Flow<List<VocabWord>>
 
