@@ -15,6 +15,8 @@
 - JSON backup export and merge restore with duplicate skipping.
 - CSV/TSV import with preview, duplicate counts, header/delimiter detection, quote/multiline handling, strict validation, 2 MB input and 10,000-row limits.
 - Dashboard today and 7-day review stats, including recall rate.
+- Dedicated Analytics screen (all-time metrics, active days, streak, 7-day trends and daily bars).
+- Settings: daily goal 5–100, System/Light/Dark theme persistence, schedule explanation and offline/local-data guidance.
 - Session review counter added in build #50.
 
 ## CI status
