@@ -49,4 +49,14 @@ a,mis"quoted""") ; fail("Expected parse error") }
         val parsed = DelimitedVocabularyImporter.parse("Word,Meaning\na,one,")
         assertEquals(1, parsed.size)
     }
+    @Test fun delimiterDetectionIgnoresCommasInsideQuotedHeader() {
+        val parsed = DelimitedVocabularyImporter.parse("Word,\"Meaning, context\"\nterm,\"meaning with, commas\"")
+        assertEquals(1, parsed.size)
+        assertEquals("meaning with, commas", parsed[0].banglaMeaning)
+    }
+    @Test fun supportsEscapedQuotesAndNewlinesInsideQuotedFields() {
+        val parsed = DelimitedVocabularyImporter.parse("Word,Meaning,Example\nterm,meaning,\"A \"\"quoted\"\" line\ncontinues\"")
+        assertEquals("A \"quoted\" line\ncontinues", parsed[0].exampleSentence)
+    }
+
 }
