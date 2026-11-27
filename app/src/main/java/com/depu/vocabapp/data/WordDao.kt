@@ -47,6 +47,19 @@ interface VocabDao {
     @Insert
     suspend fun insertBatch(batch: ImportBatch): Long
 
+
+    @Transaction
+    suspend fun mergeImport(fileName: String, words: List<VocabWord>): ImportMergeResult {
+        val batchId = insertBatch(ImportBatch(fileName = fileName, wordCount = words.size))
+        var added = 0
+        var duplicates = 0
+        words.forEach { word ->
+            val id = insertIgnore(word.copy(importBatchId = batchId))
+            if (id == -1L) duplicates++ else added++
+        }
+        return ImportMergeResult(added = added, duplicates = duplicates)
+    }
+
     @Query("SELECT * FROM import_batches ORDER BY importedAt DESC")
     fun observeBatches(): Flow<List<ImportBatch>>
 }
