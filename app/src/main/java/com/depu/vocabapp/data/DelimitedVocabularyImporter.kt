@@ -90,4 +90,3 @@ object DelimitedVocabularyImporter {
         return rows
     }
 }
-}
