@@ -16,7 +16,7 @@ class StudyStreakTest {
     }
 
     @Test fun streakContinuesWhenTodayNotYetStudied() {
-        assertEquals(3, StudyStreak.calculate(listOf(day(-2), day(-1)), day(0)))
+        assertEquals(2, StudyStreak.calculate(listOf(day(-2), day(-1)), day(0)))
     }
 
     @Test fun todayActivityStartsStreakToday() {
