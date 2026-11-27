@@ -116,6 +116,7 @@ fun ExelixApp(dao: VocabDao) {
     var source by remember { mutableStateOf("") }
     var tags by remember { mutableStateOf("") }
     var feedback by remember { mutableStateOf("") }
+    var sessionReviewed by remember { mutableIntStateOf(0) }
     val due = words.filter { it.nextReviewDate == null || it.nextReviewDate <= System.currentTimeMillis() }
     val filtered = words.filter { listOf(it.word, it.banglaMeaning, it.englishDefinition, it.partOfSpeech, it.tags, it.synonym.orEmpty(), it.antonym.orEmpty(), it.collocation.orEmpty(), it.examSourceRef.orEmpty()).any { value -> value.contains(search, ignoreCase = true) } }
 
@@ -212,6 +213,7 @@ fun ExelixApp(dao: VocabDao) {
                     "Review" -> {
                         Text("Review queue", style = MaterialTheme.typography.headlineSmall)
                         Text("${due.size} due now", style = MaterialTheme.typography.labelLarge)
+                        Text("Completed this session: $sessionReviewed", style = MaterialTheme.typography.bodyMedium)
                         val current = due.firstOrNull()
                         if (current == null) Text("Nothing due right now. Nice work.")
                         else {
@@ -230,6 +232,7 @@ fun ExelixApp(dao: VocabDao) {
                                                     dao.insertHistory(StudyHistoryEvent(vocabularyId = current.id, word = current.word, remembered = false))
                                                     val result = ReviewScheduler.again()
                                                     dao.update(current.copy(correctStreak = 0, incorrectStreak = current.incorrectStreak + 1, masteryStatus = result.status, nextReviewDate = result.nextReviewAt))
+                                                    sessionReviewed++
                                                 }
                                             }) { Text("Again") }
                                             Button(onClick = {
@@ -237,6 +240,7 @@ fun ExelixApp(dao: VocabDao) {
                                                     dao.insertHistory(StudyHistoryEvent(vocabularyId = current.id, word = current.word, remembered = true))
                                                     val result = ReviewScheduler.remembered(current.correctStreak)
                                                     dao.update(current.copy(correctStreak = result.streak, incorrectStreak = 0, masteryStatus = result.status, nextReviewDate = result.nextReviewAt))
+                                                    sessionReviewed++
                                                 }
                                             }) { Text("Remembered") }
                                         }
