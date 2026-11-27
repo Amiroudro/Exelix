@@ -14,6 +14,11 @@ object DelimitedVocabularyImporter {
         if (rows.size > 10_001) throw IllegalArgumentException("Import contains too many rows (maximum 10,000 vocabulary entries).")
         if (rows.size < 2) return emptyList()
         val headers = rows.first().map { normalizeHeader(it) }
+        rows.drop(1).forEachIndexed { index, row ->
+            if (row.size > headers.size && row.drop(headers.size).any { it.isNotBlank() }) {
+                throw IllegalArgumentException("Row ${index + 2} has more columns than the header. Check the delimiter or quoting.")
+            }
+        }
         fun index(vararg names: String): Int = headers.indexOfFirst { it in names.map(::normalizeHeader) }
         val wordIndex = index("word", "vocabulary", "term", "english", "english word")
         if (wordIndex < 0) throw IllegalArgumentException("A header column named Word is required.")
