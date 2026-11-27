@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -98,6 +99,10 @@ fun ExelixApp(dao: VocabDao) {
     val reviewedThisWeek by dao.observeReviewCountSince(weekStart).collectAsState(initial = 0)
     val rememberedThisWeek by dao.observeRememberedCountSince(weekStart).collectAsState(initial = 0)
     val weeklyRecallPercent = if (reviewedThisWeek > 0) rememberedThisWeek * 100 / reviewedThisWeek else 0
+    val preferences = remember { context.getSharedPreferences("exelix_preferences", android.content.Context.MODE_PRIVATE) }
+    var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 20).coerceIn(5, 100)) }
+    var themePreference by remember { mutableStateOf(preferences.getString("theme", "System") ?: "System") }
+    val darkTheme = themePreference == "Dark" || (themePreference == "System" && androidx.compose.foundation.isSystemInDarkTheme())
     var tab by remember { mutableStateOf("Library") }
     var showAdd by remember { mutableStateOf(false) }
     var pendingDelete by remember { mutableStateOf<VocabWord?>(null) }
@@ -118,12 +123,12 @@ fun ExelixApp(dao: VocabDao) {
     val due = ReviewQueue.dueFirst(words, System.currentTimeMillis())
     val filtered = words.filter { listOf(it.word, it.banglaMeaning, it.englishDefinition, it.partOfSpeech, it.tags, it.synonym.orEmpty(), it.antonym.orEmpty(), it.collocation.orEmpty(), it.examSourceRef.orEmpty()).any { value -> value.contains(search, ignoreCase = true) } }
 
-    MaterialTheme(colorScheme = lightColorScheme(primary = Color(0xFF176B48), secondary = Color(0xFFD62828))) {
+    MaterialTheme(colorScheme = if (darkTheme) darkColorScheme(primary = Color(0xFF66C99B), secondary = Color(0xFFFF8585)) else lightColorScheme(primary = Color(0xFF176B48), secondary = Color(0xFFD62828))) {
         Scaffold(
             topBar = { TopAppBar(title = { Column { Text("Exelix"); Text("Vocabulary, built for steady progress", style = MaterialTheme.typography.bodySmall) } }) },
             bottomBar = {
                 NavigationBar {
-                    listOf("Home", "Library", "Review", "History", "Analytics", "Backup").forEach { name ->
+                    listOf("Home", "Library", "Review", "History", "Analytics", "Backup", "Settings").forEach { name ->
                         val icon = when (name) {
                             "Home" -> Icons.Default.Home
                             "Library" -> Icons.Default.Book
@@ -141,7 +146,7 @@ fun ExelixApp(dao: VocabDao) {
                 }
             }
         ) { padding ->
-            Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp, vertical = 10.dp).then(if (tab == "Analytics") Modifier.verticalScroll(rememberScrollState()) else Modifier), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp, vertical = 10.dp).then(if (tab == "Analytics" || tab == "Settings") Modifier.verticalScroll(rememberScrollState()) else Modifier), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 when (tab) {
                     "Home" -> {
                         Text("Study overview", style = MaterialTheme.typography.headlineSmall)
@@ -163,7 +168,7 @@ fun ExelixApp(dao: VocabDao) {
                             SummaryCard("Recall", if (reviewedThisWeek == 0) "—" else "$weeklyRecallPercent%", Modifier.weight(1f))
                         }
                         Text(if (reviewedThisWeek == 0) "Start a review session to build your learning insights." else "$rememberedThisWeek remembered from $reviewedThisWeek review attempts over the last 7 days.")
-                        Text("Open Analytics for daily activity, streaks, and detailed learning stats.")
+                        Text("Daily goal: $reviewedToday / $dailyGoal reviews")\n                        LinearProgressIndicator(progress = { (reviewedToday.toFloat() / dailyGoal).coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())\n                        Text(if (reviewedToday >= dailyGoal) "Daily goal reached!" else "Open Analytics for daily activity, streaks, and detailed learning stats.")
                         Text("Offline-first. Your vocabulary is stored in the app's local database.")
                     }
                     "Analytics" -> {
@@ -223,6 +228,51 @@ fun ExelixApp(dao: VocabDao) {
                         }
                         Text("Recall rate is the share of review attempts marked Remembered. It is a learning signal, not a grade.", style = MaterialTheme.typography.bodySmall)
                         if (history.isEmpty()) Text("No review history yet. Review vocabulary to start building analytics.")
+                    }
+                    "Settings" -> {
+                        Text("Settings & preferences", style = MaterialTheme.typography.headlineSmall)
+                        Text("Personalize your study experience. Preferences are saved on this device.", style = MaterialTheme.typography.bodyMedium)
+                        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("Daily study goal", style = MaterialTheme.typography.titleMedium)
+                                Text("$dailyGoal review attempts per day", style = MaterialTheme.typography.bodyMedium)
+                                Slider(value = dailyGoal.toFloat(), onValueChange = { dailyGoal = (it / 5f).toInt() * 5 }, valueRange = 5f..100f, steps = 18, onValueChangeFinished = { preferences.edit().putInt("daily_goal", dailyGoal).apply() })
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("5", style = MaterialTheme.typography.labelSmall)
+                                    Text("100", style = MaterialTheme.typography.labelSmall)
+                                }
+                                Text("Your goal tracks review attempts, not vocabulary added.", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Appearance", style = MaterialTheme.typography.titleMedium)
+                                listOf("System", "Light", "Dark").forEach { option ->
+                                    Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                        RadioButton(selected = themePreference == option, onClick = {
+                                            themePreference = option
+                                            preferences.edit().putString("theme", option).apply()
+                                        })
+                                        Text(option, modifier = Modifier.padding(start = 6.dp))
+                                    }
+                                }
+                            }
+                        }
+                        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Review schedule", style = MaterialTheme.typography.titleMedium)
+                                Text("Exelix schedules remembered words using progressively longer intervals and returns words marked Again to the learning queue.")
+                                Text("Current scheduler intervals are built into the app. Custom interval controls and reminders are not available yet.", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text("Storage & privacy", style = MaterialTheme.typography.titleMedium)
+                                Text("Vocabulary, review history, and preferences are stored locally on this device. The app works offline.")
+                                Text("Export a backup from Backup before moving devices or reinstalling.", style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        Text("Exelix • Native rebuild", style = MaterialTheme.typography.labelSmall)
                     }
                     "Library" -> {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
