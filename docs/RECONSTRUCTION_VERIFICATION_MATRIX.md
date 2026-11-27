@@ -78,7 +78,7 @@ Record for each release candidate:
 ## Current known blockers
 
 - Original source and signing certificate were not recovered.
-- XLSX and Markdown parity remains unresolved.
+- XLSX is not implemented; Markdown export/import now exists in a reconstructed format, but original APK compatibility remains unresolved.
 - Feed/news sync, tags/batch actions, and review-worker/reminder behavior need verification.
 - Prior device testing was owner-confirmed, but test evidence was not tied to a candidate SHA in this repository.
 - Release signing is owner-controlled and not configured in CI yet.
