@@ -50,6 +50,14 @@
 - Build #90 includes corrected unbounded analytics, capped input reads, backup validation/limitations notice, app label/version, dashboard launch, and scrollable Home/More/Backup/Analytics/Settings.
 - Later commits add optional repository-secret signing and an additional scheduler interval-cap test; the current latest CI run must pass before those changes are considered verified.
 
+## Build #97 verified release candidate
+- Run #97, commit `dd56f7193a822cf0b7fa34d4f43be980cbf79ebf`: success; tests and Debug/Release APK/AAB tasks passed.
+- Debug APK: 16,597,343 bytes; SHA-256 `dee0f7876d2a6321f43f75d5ec0a70c8653ff8f15758fa20ded515e1a79375b9`; archive integrity passed.
+- Unsigned Release APK: 10,854,738 bytes; SHA-256 `1d3689a1484d4d1e22ec9843718d70f7c551ee0c824d15ba9b64a3588551a45d`; archive integrity passed.
+- Unsigned Release AAB: 10,524,133 bytes; SHA-256 `acbb3054e002748d91c640b0e7986d71fb6c9e0a807326d26ca567974973c469`; archive integrity passed.
+- Run #99 subsequently passed tests for local calendar helpers. Run #100/#101 include daily rollover integration and final branding and are pending at documentation time.
+- Optional release signing is wired to repository secrets, but no production signing secrets are configured.
+
 ## Pending validation
 - Install reconstruction beside original without replacing original.
 - Test dashboard numbers and date-boundary behavior.
