@@ -7,8 +7,8 @@ object DelimitedVocabularyImporter {
         if (source.length > 2_000_000) throw IllegalArgumentException("Import file is too large (maximum 2 MB of text).")
         if (source.isBlank()) return emptyList()
         val firstLine = source.lineSequence().firstOrNull().orEmpty()
-        val tabCount = firstLine.count { it == '\t' }
-        val commaCount = firstLine.count { it == ',' }
+        val tabCount = countUnquoted(firstLine, '\t')
+        val commaCount = countUnquoted(firstLine, ',')
         val delimiter = if (tabCount > commaCount) '\t' else ','
         val rows = parseRows(source, delimiter).filter { row -> row.any { it.isNotBlank() } }
         if (rows.size > 10_001) throw IllegalArgumentException("Import contains too many rows (maximum 10,000 vocabulary entries).")
@@ -51,6 +51,23 @@ object DelimitedVocabularyImporter {
     }
 
     private fun normalizeHeader(s: String) = s.trim().lowercase().replace('_', ' ').replace('-', ' ')
+    private fun countUnquoted(line: String, delimiter: Char): Int {
+        var quoted = false
+        var count = 0
+        var i = 0
+        while (i < line.length) {
+            val c = line[i]
+            if (c == '"' && quoted && i + 1 < line.length && line[i + 1] == '"') {
+                i++
+            } else if (c == '"') {
+                quoted = !quoted
+            } else if (!quoted && c == delimiter) {
+                count++
+            }
+            i++
+        }
+        return count
+    }
     private fun parseRows(text: String, delimiter: Char): List<List<String>> {
         val rows = mutableListOf<List<String>>()
         var row = mutableListOf<String>()
