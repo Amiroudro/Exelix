@@ -37,7 +37,12 @@ object BackupFormat {
     }
 
     fun decode(json: String): List<VocabWord> {
+        if (json.length > 10_000_000) throw IllegalArgumentException("Backup is too large (maximum 10 MB of text).")
         val root = JSONObject(json)
+        val format = root.optString("format", "")
+        if (format.isNotBlank() && format != "Exelix Android backup") throw IllegalArgumentException("This is not an Exelix backup.")
+        val version = root.optInt("version", 1)
+        if (version != 1) throw IllegalArgumentException("Unsupported backup version: $version")
         val array = root.optJSONArray("words") ?: throw IllegalArgumentException("Backup has no words array")
         val output = mutableListOf<VocabWord>()
         for (i in 0 until array.length()) {
