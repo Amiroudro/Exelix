@@ -103,16 +103,31 @@ fun ExelixApp(dao: VocabDao) {
         }
     }
     var pendingImport by remember { mutableStateOf<List<VocabWord>>(emptyList()) }
+    var importSource by remember { mutableStateOf("CSV/TSV import") }
     var showImportPreview by remember { mutableStateOf(false) }
     val csvImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) scope.launch {
             try {
                 val raw = readUriTextLimited(context, uri, 2_000_000)
+                importSource = "CSV/TSV import"
                 pendingImport = DelimitedVocabularyImporter.parse(raw)
                 if (pendingImport.isEmpty()) backupFeedback = "No vocabulary rows found. Check the file headers and content."
                 else showImportPreview = true
             } catch (error: Exception) {
                 backupFeedback = "Import failed: ${error.message ?: "invalid file"}"
+            }
+        }
+    }
+    val markdownImportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            try {
+                val raw = readUriTextLimited(context, uri, 2_000_000)
+                importSource = "Markdown import"
+                pendingImport = MarkdownVocabularyImporter.parse(raw)
+                if (pendingImport.isEmpty()) backupFeedback = "No vocabulary entries found in this Markdown file."
+                else showImportPreview = true
+            } catch (error: Exception) {
+                backupFeedback = "Markdown import failed: " + (error.message ?: "invalid file")
             }
         }
     }
@@ -451,6 +466,7 @@ fun ExelixApp(dao: VocabDao) {
                         Button(onClick = { exportLauncher.launch("Exelix-backup.json") }, modifier = Modifier.fillMaxWidth()) { Text("Export JSON backup") }
                         OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge JSON backup") }
                         OutlinedButton(onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/vnd.ms-excel")) }, modifier = Modifier.fillMaxWidth()) { Text("Import CSV / TSV with preview") }
+                        OutlinedButton(onClick = { markdownImportLauncher.launch(arrayOf("text/markdown", "text/plain", "application/octet-stream")) }, modifier = Modifier.fillMaxWidth()) { Text("Import Exelix Markdown with preview") }
                         OutlinedButton(onClick = { markdownExportLauncher.launch("Exelix-vocabulary.md") }, modifier = Modifier.fillMaxWidth()) { Text("Export vocabulary as Markdown") }
                         if (backupFeedback.isNotBlank()) Text(backupFeedback, color = MaterialTheme.colorScheme.primary)
                         Text("Recent imports", style = MaterialTheme.typography.titleMedium)
@@ -491,7 +507,7 @@ fun ExelixApp(dao: VocabDao) {
         confirmButton = {
             Button(onClick = {
                 scope.launch {
-                    val result = dao.mergeImport("CSV/TSV import", pendingImport)
+                    val result = dao.mergeImport(importSource, pendingImport)
                     backupFeedback = "Import complete: ${result.added} added, ${result.duplicates} duplicates skipped."
                     pendingImport = emptyList()
                     showImportPreview = false
