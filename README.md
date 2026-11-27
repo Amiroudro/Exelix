@@ -23,9 +23,9 @@ Exelix is a personal vocabulary-learning app. **Android-native APK reconstructio
 - GitHub Actions workflow: `.github/workflows/android-build.yml`.
 - **Build 103 succeeded**: Android build/tests passed; Debug APK, unsigned Release APK, and unsigned AAB generated.
 - Backup v2 changes merged into main via PR #1.
-- Physical-device runtime testing remains pending; CI is not device QA.
+- **Owner-confirmed real-device testing: all tested functionality reported OK** (exact device/build/test evidence not yet recorded).
 - Release signing secrets are not configured, so release outputs are unsigned.
-- The CI workflow now fails fast on partial/malformed signing configuration and checks keystore password/alias before attempting signed builds; signed artifacts are verified.
+- The CI workflow now fails fast on partial/malformed signing configuration and checks keystore password/alias before attempting signed builds; signed artifacts are verified when signing is configured.
 - See [release/device QA checklist](docs/RELEASE_QA.md) and [roadmap](docs/ROADMAP.md).
 
 ## Browser edition (paused)
