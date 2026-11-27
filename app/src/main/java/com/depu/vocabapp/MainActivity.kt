@@ -87,6 +87,7 @@ fun ExelixApp(dao: VocabDao) {
     val wordCount by dao.observeCount().collectAsState(initial = 0)
     val masteredCount by dao.observeMasteredCount().collectAsState(initial = 0)
     val history by dao.observeHistory().collectAsState(initial = emptyList())
+    val importBatches by dao.observeBatches().collectAsState(initial = emptyList())
     val todayStart = remember { java.util.Calendar.getInstance().apply { set(java.util.Calendar.HOUR_OF_DAY, 0); set(java.util.Calendar.MINUTE, 0); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }.timeInMillis }
     val reviewedToday by dao.observeReviewCountSince(todayStart).collectAsState(initial = 0)
     val rememberedToday by dao.observeRememberedCountSince(todayStart).collectAsState(initial = 0)
@@ -269,6 +270,17 @@ fun ExelixApp(dao: VocabDao) {
                         OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "text/json")) }, modifier = Modifier.fillMaxWidth()) { Text("Restore / merge JSON backup") }
                         OutlinedButton(onClick = { csvImportLauncher.launch(arrayOf("text/*", "application/vnd.ms-excel")) }, modifier = Modifier.fillMaxWidth()) { Text("Import CSV / TSV with preview") }
                         if (backupFeedback.isNotBlank()) Text(backupFeedback, color = MaterialTheme.colorScheme.primary)
+                        Text("Recent imports", style = MaterialTheme.typography.titleMedium)
+                        if (importBatches.isEmpty()) Text("Import history will appear here after your first CSV, TSV, or JSON restore.")
+                        else importBatches.take(5).forEach { batch ->
+                            Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+                                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                    Text(batch.fileName, style = MaterialTheme.typography.titleSmall)
+                                    Text("${batch.wordCount} words added", style = MaterialTheme.typography.bodyMedium)
+                                    Text(java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT).format(java.util.Date(batch.importedAt)), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
                     }
                 }
             }
