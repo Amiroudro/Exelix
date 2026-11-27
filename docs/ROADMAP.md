@@ -17,7 +17,7 @@
 
 ### Next priorities
 1. **Physical-device QA:** install alongside original on a test device; verify navigation, DB persistence, imports, backup/restore, review scheduling, and layout/keyboard behavior. This remains blocked until hands-on device verification is recorded.
-2. **Review UX:** improve session pacing, answer feedback, card layout, and empty/due states based on device observations.
+2. **Review UX:** automated implementation now includes a session progress indicator, completion message, and compact five-item bottom navigation with a More hub. Further refinements should follow real-device observation (answer feedback, card layout, empty/due states).
 3. **Analytics accuracy:** automated tests now cover streak continuity when today has no activity (yesterday-active streak), activity today, gaps, no activity, and future-only timestamps. Validate local date boundaries and review-event calculations on-device; consider a simple day-by-day view after runtime QA.
 4. **Recovery fidelity:** inspect APK evidence further; implement additional features only where evidence is sufficient and scope is safe.
 5. **Release hygiene:** versioning, signed release build, privacy/data-loss warnings, and reproducible release checklist.
