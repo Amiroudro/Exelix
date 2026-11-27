@@ -13,7 +13,7 @@ Evidence retained from Phase 5 is an APK/DEX inventory, app-owned class/method i
 | `addWord`, `updateWord`, `deleteWord` | Implemented | Owner reports device testing OK. |
 | `previewImport`, `commitImport` | CSV/TSV import implemented | Original formats and UI parity need evidence. |
 | `exportBackup`, `restoreBackup`, BackupManager | JSON v1/v2 reconstruction implemented | Current v2 includes words, review history, goal, theme; exact original backup format unknown. |
-| `exportToMarkdown`, `importMarkdown`, MarkdownImporter/Exporter | Markdown vocabulary export added; import not implemented | Export is a newly designed human-readable format and is not confirmed compatible with original. Markdown import remains open.
+| `exportToMarkdown`, `importMarkdown`, MarkdownImporter/Exporter | Markdown export + matching import/preview implemented in reconstruction | Portable format is newly designed and not original-compatible verified; tests added, CI status pending.
 | `exportToXlsx`, `importXlsx`, XlsxImporter/Exporter | Not implemented/confirmed | Spreadsheet import/export is a notable parity gap. |
 | Tag handling and batch deletion method identifiers | Not fully verified | Audit current UI/DAO for bulk delete and tag operations. |
 | Due-review queries, DueReviewWorker | Review queue + approximate scheduler implemented | Worker/reminder semantics not recovered or implemented/confirmed. |
